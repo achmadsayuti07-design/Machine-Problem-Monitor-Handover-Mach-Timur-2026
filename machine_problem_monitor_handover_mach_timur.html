@@ -170,7 +170,6 @@
 
     <!-- KPI Summary Cards (6 Cards) -->
     <section aria-label="Ringkasan KPI" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-      <!-- Total Issue Aktif -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Issue Aktif</span>
@@ -184,7 +183,6 @@
         </div>
       </div>
 
-      <!-- Critical / Line Stop -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-red-200 dark:border-red-900/50 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">Critical / Stop</span>
@@ -198,7 +196,6 @@
         </div>
       </div>
 
-      <!-- Waiting Sparepart -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-amber-200 dark:border-amber-900/50 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">Waiting Part</span>
@@ -212,7 +209,6 @@
         </div>
       </div>
 
-      <!-- Waiting Time -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-orange-200 dark:border-orange-900/50 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">Waiting Time</span>
@@ -226,7 +222,6 @@
         </div>
       </div>
 
-      <!-- Terselesaikan / Close Hari Ini -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-emerald-200 dark:border-emerald-900/50 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Close / Selesai</span>
@@ -240,7 +235,6 @@
         </div>
       </div>
 
-      <!-- Total Downtime Aktif -->
       <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between">
           <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Downtime Aktif</span>
@@ -256,7 +250,6 @@
 
     <!-- Filter, Search & View Controls -->
     <section class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-      <!-- Status Quick Tabs -->
       <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div id="status-tabs" class="flex flex-wrap items-center gap-1.5">
           <button data-status="ALL" class="status-tab active px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950 transition">
@@ -282,22 +275,18 @@
           </button>
         </div>
 
-        <!-- Clear Data Button -->
         <button id="btn-reset-data" type="button" class="text-xs font-medium text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 flex items-center gap-1.5 transition">
           <i class="fa-solid fa-trash-can"></i>
           <span>Bersihkan Semua Data</span>
         </button>
       </div>
 
-      <!-- Search & Dropdown Filters -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
-        <!-- Search Input -->
         <div class="lg:col-span-5 relative">
           <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
           <input id="filter-search" type="text" placeholder="Cari mesin, kode alarm, gejala, atau nama PIC..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition" />
         </div>
 
-        <!-- Filter Lini -->
         <div class="lg:col-span-3">
           <select id="filter-line" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition">
             <option value="ALL">Semua Lini Produksi</option>
@@ -308,7 +297,6 @@
           </select>
         </div>
 
-        <!-- Filter Prioritas -->
         <div class="lg:col-span-2">
           <select id="filter-priority" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition">
             <option value="ALL">Semua Prioritas</option>
@@ -319,7 +307,6 @@
           </select>
         </div>
 
-        <!-- Sort By -->
         <div class="lg:col-span-2">
           <select id="filter-sort" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition">
             <option value="priority">Urut: Prioritas Tertinggi</option>
@@ -332,11 +319,8 @@
 
     <!-- Problem Cards Grid -->
     <section aria-label="Daftar Problem Mesin">
-      <div id="issues-container" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <!-- Cards rendered dynamically via JS -->
-      </div>
+      <div id="issues-container" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
 
-      <!-- Empty State -->
       <div id="empty-state" class="hidden bg-white dark:bg-slate-900 rounded-2xl p-10 border border-dashed border-slate-300 dark:border-slate-700 text-center space-y-3">
         <div class="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 mx-auto flex items-center justify-center text-2xl">
           <i class="fa-solid fa-clipboard-check"></i>
@@ -346,7 +330,7 @@
       </div>
     </section>
 
-    <!-- Additional Activities Section (PM, Repair Sparepart, Kaizen, dll) -->
+    <!-- Additional Activities Section -->
     <section aria-label="Activity Tambahan PM dan Repair" class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
       <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
         <div class="flex items-center gap-2.5">
@@ -368,12 +352,10 @@
         </button>
       </div>
 
-      <div id="activities-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        <!-- Rendered dynamically via JS -->
-      </div>
+      <div id="activities-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
 
       <div id="activities-empty" class="text-center py-6 px-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
-        Belum ada activity tambahan (PM / Repair Sparepart) yang dicatat pada shift ini.
+        Belum ada activity tambahan (PM / Repair Sparepart) yang dicatat.
       </div>
     </section>
 
@@ -403,9 +385,7 @@
     </button>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 1: FORM INPUT PROBLEM MESIN BARU                                -->
-  <!-- ===================================================================== -->
+  <!-- MODAL 1: FORM INPUT PROBLEM MESIN BARU -->
   <div id="modal-new-issue" class="fixed inset-0 z-40 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
@@ -415,7 +395,7 @@
           </span>
           <div>
             <h2 class="text-base font-bold">Lapor Problem Mesin Baru</h2>
-            <p class="text-xs text-slate-400">Isi detail kerusakan untuk tracking & serah terima shift Mach Timur</p>
+            <p class="text-xs text-slate-400">Isi detail kerusakan untuk tracking & serah terima Mach Timur</p>
           </div>
         </div>
         <button type="button" data-close-modal="modal-new-issue" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
@@ -425,7 +405,6 @@
 
       <form id="form-new-issue" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Nama / Kode Mesin -->
           <div>
             <label for="input-machine" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
               Nama / Kode Mesin <span class="text-red-500">*</span>
@@ -447,7 +426,6 @@
             </datalist>
           </div>
 
-          <!-- Lini / Area Produksi -->
           <div>
             <label for="input-line" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
               Lini / Area Produksi <span class="text-red-500">*</span>
@@ -460,7 +438,6 @@
             </select>
           </div>
 
-          <!-- Kategori Problem -->
           <div>
             <label for="input-category" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
               Kategori Problem <span class="text-red-500">*</span>
@@ -474,7 +451,6 @@
             </select>
           </div>
 
-          <!-- Prioritas / Dampak -->
           <div>
             <label for="input-priority" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
               Prioritas / Dampak <span class="text-red-500">*</span>
@@ -488,7 +464,6 @@
           </div>
         </div>
 
-        <!-- Kode Alarm & Gejala -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label for="input-alarm" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
@@ -504,7 +479,6 @@
           </div>
         </div>
 
-        <!-- Action Plan & Kebutuhan Sparepart -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label for="input-action" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
@@ -520,7 +494,6 @@
           </div>
         </div>
 
-        <!-- Camera / Photo Capture Section -->
         <div class="bg-slate-50 dark:bg-slate-800/70 p-3.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div>
@@ -543,7 +516,6 @@
             <input id="input-photo-gallery" type="file" accept="image/*" class="hidden" />
           </div>
 
-          <!-- Live Preview Thumbnail -->
           <div id="new-photo-preview-wrap" class="hidden relative inline-block mt-2">
             <img id="new-photo-preview" src="" alt="Preview Foto Mesin" class="h-32 w-auto max-w-full rounded-xl object-cover border border-slate-300 dark:border-slate-600 shadow-sm" />
             <button id="btn-remove-new-photo" type="button" class="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow transition">
@@ -553,7 +525,6 @@
           </div>
         </div>
 
-        <!-- PIC, Shift & Status Awal -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <label for="input-pic" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
@@ -562,13 +533,10 @@
             <input id="input-pic" type="text" required placeholder="Nama teknisi" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
           </div>
           <div>
-            <label for="input-shift" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
-              Shift <span class="text-red-500">*</span>
+            <label for="input-time" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Waktu / Jam (HH:MM) <span class="text-red-500">*</span>
             </label>
-            <select id="input-shift" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
-              <option value="Shift 1 (07:15 - 20:00)">Shift 1 (07:15 - 20:00)</option>
-              <option value="Shift 2 (20:00 - 07:00)">Shift 2 (20:00 - 07:00)</option>
-            </select>
+            <input id="input-time" type="time" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500" />
           </div>
           <div>
             <label for="input-status" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
@@ -585,7 +553,6 @@
           </div>
         </div>
 
-        <!-- Form Actions -->
         <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
           <button type="button" data-close-modal="modal-new-issue" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
             Batal
@@ -598,9 +565,7 @@
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 2: TAMBAH UPDATE LOG / RIWAYAT PER ITEM MESIN                   -->
-  <!-- ===================================================================== -->
+  <!-- MODAL 2: TAMBAH UPDATE LOG / RIWAYAT PER ITEM MESIN -->
   <div id="modal-update-log" class="fixed inset-0 z-40 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
@@ -644,7 +609,6 @@
             <textarea id="log-note" rows="2" required placeholder="Misal: Sudah ganti solenoid valve, sedang test run 10 cycle..." class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></textarea>
           </div>
 
-          <!-- Camera Photo Capture in Update Log -->
           <div class="pt-1 space-y-2">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <span class="text-xs font-bold text-slate-600 dark:text-slate-300">
@@ -688,16 +652,14 @@
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 3: SHARE LAPORAN SHIFT / WHATSAPP SUMMARY                       -->
-  <!-- ===================================================================== -->
+  <!-- MODAL 3: SHARE LAPORAN SHIFT / WHATSAPP SUMMARY -->
   <div id="modal-share-report" class="fixed inset-0 z-40 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
       <div class="px-6 py-4 bg-emerald-700 text-white flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <i class="fa-brands fa-whatsapp text-2xl"></i>
           <div>
-            <h2 class="text-base font-bold">Laporan Ringkasan Shift Handover Mach Timur</h2>
+            <h2 class="text-base font-bold">Laporan Ringkasan Handover Mach Timur</h2>
             <p class="text-xs text-emerald-100">Siap disalin atau dikirim langsung ke grup WhatsApp / Telegram</p>
           </div>
         </div>
@@ -743,9 +705,7 @@
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 7: FORM INPUT ACTIVITY TAMBAHAN (PM / REPAIR SPAREPART)         -->
-  <!-- ===================================================================== -->
+  <!-- MODAL 7: FORM INPUT ACTIVITY TAMBAHAN -->
   <div id="modal-new-activity" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
       <div class="px-6 py-4 bg-indigo-900 text-white flex items-center justify-between">
@@ -815,13 +775,10 @@
           </div>
 
           <div>
-            <label for="act-shift" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
-              Shift <span class="text-red-500">*</span>
+            <label for="act-time" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Waktu / Jam (HH:MM) <span class="text-red-500">*</span>
             </label>
-            <select id="act-shift" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              <option value="Shift 1 (07:15 - 20:00)">Shift 1 (07:15 - 20:00)</option>
-              <option value="Shift 2 (20:00 - 07:00)">Shift 2 (20:00 - 07:00)</option>
-            </select>
+            <input id="act-time" type="time" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500" />
           </div>
 
           <div>
@@ -848,9 +805,7 @@
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 4: PANDUAN INSTALL APLIKASI DI HP (PWA GUIDE)                   -->
-  <!-- ===================================================================== -->
+  <!-- MODAL 4: PANDUAN INSTALL APLIKASI DI HP (PWA GUIDE) -->
   <div id="modal-pwa-guide" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
@@ -876,15 +831,20 @@
           </button>
         </div>
 
+        <div class="p-3.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 text-xs text-sky-900 dark:text-sky-200 space-y-1">
+          <p class="font-bold">Catatan Penting untuk Chrome Android:</p>
+          <p>Agar opsi <strong>Install app</strong> muncul di Chrome HP, aplikasi harus dibuka lewat link <strong>HTTPS</strong> (seperti Netlify atau GitHub Pages) dalam tab normal (bukan <em>Incognito</em> dan bukan <code>file://</code>). Jika dibuka dari file lokal, menu Chrome biasanya hanya menampilkan <em>Add to Home screen</em> biasa.</p>
+        </div>
+
         <div class="space-y-3">
           <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 space-y-1.5">
             <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <i class="fa-brands fa-android text-emerald-500 text-base"></i> Android (Google Chrome)
             </h3>
             <ol class="list-decimal list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1 leading-relaxed">
-              <li>Buka link aplikasi ini di browser <strong>Chrome</strong>.</li>
+              <li>Buka link <strong>HTTPS</strong> aplikasi ini di browser <strong>Chrome</strong>.</li>
               <li>Ketuk ikon menu <strong>⋮ (tiga titik)</strong> di pojok kanan atas.</li>
-              <li>Pilih <strong>Add to Home screen</strong> atau <strong>Install app</strong>.</li>
+              <li>Pilih <strong>Install app</strong> atau <strong>Add to Home screen</strong>.</li>
               <li>Konfirmasi <strong>Install / Add</strong> agar muncul di layar utama HP.</li>
             </ol>
           </div>
@@ -911,9 +871,7 @@
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 5: LIGHTBOX PERBESAR FOTO MESIN                                 -->
-  <!-- ===================================================================== -->
+  <!-- MODAL 5: LIGHTBOX PERBESAR FOTO MESIN -->
   <div id="modal-lightbox" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="relative max-w-3xl w-full flex flex-col items-center">
       <button type="button" data-close-modal="modal-lightbox" class="self-end mb-2 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center gap-1.5 transition">
@@ -924,9 +882,7 @@
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- MODAL 6: PENGATURAN SYNC CLOUD (GOOGLE SHEETS APPS SCRIPT)            -->
-  <!-- ===================================================================== -->
+  <!-- MODAL 6: PENGATURAN SYNC CLOUD (GOOGLE SHEETS APPS SCRIPT) -->
   <div id="modal-cloud-sync" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
       <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
@@ -1024,9 +980,6 @@ function getOrCreateSheet() {
     </div>
   </div>
 
-  <!-- ===================================================================== -->
-  <!-- JAVASCRIPT APPLICATION LOGIC                                          -->
-  <!-- ===================================================================== -->
   <script>
     (function () {
       'use strict';
@@ -1055,6 +1008,23 @@ function getOrCreateSheet() {
 
       function isIssueClosed(status) {
         return status === CLOSED_STATUS || status === 'Resolved';
+      }
+
+      function getCurrentHHMM() {
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        return `${hh}:${mm}`;
+      }
+
+      function buildIsoFromTimeHHMM(timeStr) {
+        const now = new Date();
+        if (timeStr && /^\d{2}:\d{2}$/.test(timeStr)) {
+          const [hh, mm] = timeStr.split(':').map(Number);
+          const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
+          return d.toISOString();
+        }
+        return now.toISOString();
       }
 
       function compressImageFile(file, maxWidth = 800, quality = 0.72) {
@@ -1092,28 +1062,74 @@ function getOrCreateSheet() {
         });
       }
 
+      function createPngIconDataUrl(size) {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#0f172a';
+          ctx.beginPath();
+          ctx.roundRect(0, 0, size, size, Math.round(size * 0.2));
+          ctx.fill();
+
+          ctx.strokeStyle = '#f59e0b';
+          ctx.lineWidth = Math.max(4, Math.round(size * 0.09));
+          ctx.beginPath();
+          ctx.arc(size / 2, size / 2, size * 0.25, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.fillStyle = '#f59e0b';
+          ctx.beginPath();
+          ctx.arc(size / 2, size / 2, size * 0.09, 0, Math.PI * 2);
+          ctx.fill();
+
+          return canvas.toDataURL('image/png');
+        } catch (err) {
+          return '';
+        }
+      }
+
+      function registerMinimalServiceWorker() {
+        if (!('serviceWorker' in navigator)) return;
+        if (!window.isSecureContext && location.hostname !== 'localhost') return;
+
+        const swCode = `
+          self.addEventListener('install', function(event) {
+            self.skipWaiting();
+          });
+          self.addEventListener('activate', function(event) {
+            event.waitUntil(self.clients.claim());
+          });
+          self.addEventListener('fetch', function(event) {});
+        `;
+        try {
+          const swBlob = new Blob([swCode], { type: 'application/javascript' });
+          const swUrl = URL.createObjectURL(swBlob);
+          navigator.serviceWorker.register(swUrl).catch(() => {});
+        } catch (err) {}
+      }
+
       function initPWA() {
-        const svgIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#0f172a"/><circle cx="50" cy="50" r="24" fill="none" stroke="#f59e0b" stroke-width="10" stroke-dasharray="12 6"/><circle cx="50" cy="50" r="9" fill="#f59e0b"/></svg>';
-        const iconDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+        const icon192 = createPngIconDataUrl(192);
+        const icon512 = createPngIconDataUrl(512);
 
         const appleIconLink = document.getElementById('apple-touch-icon');
-        if (appleIconLink) appleIconLink.href = iconDataUrl;
+        if (appleIconLink && icon192) appleIconLink.href = icon192;
+
+        const icons = [];
+        if (icon192) icons.push({ src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any' });
+        if (icon512) icons.push({ src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any' });
 
         const manifestObj = {
           name: 'Machine Problem Monitor & Handover Mach Timur',
           short_name: 'Mach Timur Monitor',
           start_url: '.',
+          scope: '.',
           display: 'standalone',
           background_color: '#0f172a',
           theme_color: '#0f172a',
-          icons: [
-            {
-              src: iconDataUrl,
-              sizes: '192x192',
-              type: 'image/svg+xml',
-              purpose: 'any'
-            }
-          ]
+          icons: icons
         };
 
         try {
@@ -1124,6 +1140,8 @@ function getOrCreateSheet() {
         } catch (err) {
           console.warn('Manifest blob setup skipped:', err);
         }
+
+        registerMinimalServiceWorker();
 
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
         const bannerDismissed = localStorage.getItem(BANNER_DISMISSED_KEY) === '1';
@@ -1140,7 +1158,6 @@ function getOrCreateSheet() {
         });
       }
 
-      // Google Sheets Cloud Sync Helpers
       function getGasUrl() {
         const params = new URLSearchParams(window.location.search);
         const urlParam = params.get('api');
@@ -1260,9 +1277,13 @@ function getOrCreateSheet() {
 
       function openModal(id) {
         const modalEl = document.getElementById(id);
-        if (!modalEl) {
-          console.warn(`Modal dengan id "${id}" tidak ditemukan.`);
-          return;
+        if (!modalEl) return;
+        if (id === 'modal-new-issue') {
+          const timeInput = document.getElementById('input-time');
+          if (timeInput && !timeInput.value) timeInput.value = getCurrentHHMM();
+        } else if (id === 'modal-new-activity') {
+          const actTimeInput = document.getElementById('act-time');
+          if (actTimeInput && !actTimeInput.value) actTimeInput.value = getCurrentHHMM();
         }
         modalEl.classList.remove('hidden');
       }
@@ -1321,7 +1342,8 @@ function getOrCreateSheet() {
         return `${hours}j ${mins}m`;
       }
 
-      function formatTimeShort(isoStr) {
+      function formatTimeShort(isoStr, fallbackTime) {
+        if (fallbackTime && /^\d{2}:\d{2}$/.test(fallbackTime)) return fallbackTime;
         try {
           const d = new Date(isoStr);
           return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
@@ -1330,11 +1352,13 @@ function getOrCreateSheet() {
         }
       }
 
-      function formatDateTime(isoStr) {
+      function formatDateTime(isoStr, fallbackTime) {
         try {
           const d = new Date(isoStr);
-          return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' ' +
-                 d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+          const timePart = (fallbackTime && /^\d{2}:\d{2}$/.test(fallbackTime))
+            ? fallbackTime
+            : d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+          return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' ' + timePart;
         } catch (e) {
           return '-';
         }
@@ -1409,7 +1433,6 @@ function getOrCreateSheet() {
         setElText('kpi-resolved', resolvedCount);
         setElText('kpi-downtime', formatDuration(totalActiveDowntimeMs));
 
-        // Update Tab Counts
         document.querySelectorAll('#status-tabs .status-tab').forEach(btn => {
           const status = btn.getAttribute('data-status');
           const countSpan = btn.querySelector('.count');
@@ -1502,11 +1525,11 @@ function getOrCreateSheet() {
             const isCritPulse = !closed && item.priority === 'Critical' ? 'critical-pulse border-red-400 dark:border-red-700' : 'border-slate-200 dark:border-slate-800';
             const cardOpacity = closed ? 'opacity-80' : '';
             const latestLog = item.logs && item.logs.length > 0 ? item.logs[item.logs.length - 1] : null;
+            const jamStr = formatTimeShort(item.createdAt, item.eventTime);
 
             return `
               <article class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border ${isCritPulse} ${cardOpacity} shadow-sm flex flex-col justify-between gap-4 transition">
                 <div class="space-y-3">
-                  <!-- Top Row -->
                   <div class="flex items-start justify-between gap-2">
                     <div>
                       <div class="flex flex-wrap items-center gap-2">
@@ -1515,7 +1538,7 @@ function getOrCreateSheet() {
                         ${item.alarmCode ? `<span class="px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/70 text-rose-600 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-mono text-xs font-bold">${escapeHTML(item.alarmCode)}</span>` : ''}
                       </div>
                       <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        <span>${escapeHTML(item.category)}</span> • <span>PIC: <strong class="text-slate-700 dark:text-slate-200">${escapeHTML(item.pic)}</strong> (${escapeHTML(item.shift)})</span> • <span>Lapor: ${formatDateTime(item.createdAt)}</span>
+                        <span>${escapeHTML(item.category)}</span> • <span>PIC: <strong class="text-slate-700 dark:text-slate-200">${escapeHTML(item.pic)}</strong></span> • <span>Jam: <strong class="font-mono text-slate-700 dark:text-slate-200">${escapeHTML(jamStr)}</strong></span>
                       </p>
                     </div>
                     <div class="flex flex-col items-end gap-1.5 shrink-0">
@@ -1526,7 +1549,6 @@ function getOrCreateSheet() {
                     </div>
                   </div>
 
-                  <!-- Symptom & Action -->
                   <div class="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 space-y-2 border border-slate-100 dark:border-slate-800">
                     <div>
                       <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Problem / Gejala:</span>
@@ -1557,7 +1579,6 @@ function getOrCreateSheet() {
                   ` : ''}
                 </div>
 
-                <!-- Card Footer Actions -->
                 <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
                   <select data-quick-status="${item.id}" aria-label="Ubah Status Mesin" class="px-3 py-1.5 rounded-xl text-xs font-bold border ${getStatusBadgeClass(item.status)} focus:outline-none cursor-pointer">
                     <option value="Reported" ${item.status === 'Reported' ? 'selected' : ''}>Reported</option>
@@ -1608,6 +1629,7 @@ function getOrCreateSheet() {
             : act.status === 'In Progress'
               ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/70 dark:text-blue-300'
               : 'bg-amber-100 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300';
+          const jamAct = formatTimeShort(act.createdAt, act.eventTime);
 
           return `
             <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 flex flex-col justify-between gap-2.5">
@@ -1626,7 +1648,7 @@ function getOrCreateSheet() {
                 <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHTML(act.description)}</p>
               </div>
               <div class="pt-2 border-t border-slate-200/70 dark:border-slate-700/70 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
-                <span>PIC: <strong class="text-slate-700 dark:text-slate-200">${escapeHTML(act.pic)}</strong> (${escapeHTML(act.shift)}) • ${formatTimeShort(act.createdAt)}</span>
+                <span>PIC: <strong class="text-slate-700 dark:text-slate-200">${escapeHTML(act.pic)}</strong> • Jam: <strong class="font-mono text-slate-700 dark:text-slate-200">${escapeHTML(jamAct)}</strong></span>
                 <button type="button" data-delete-activity="${act.id}" title="Hapus Activity" class="text-slate-400 hover:text-red-500 p-1 transition">
                   <i class="fa-solid fa-trash-can"></i>
                 </button>
@@ -1661,7 +1683,7 @@ function getOrCreateSheet() {
             <div class="relative pb-2">
               <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-4 ring-white dark:ring-slate-900"></span>
               <div class="flex flex-wrap items-center gap-2 text-xs">
-                <span class="font-mono font-bold text-slate-500 dark:text-slate-400">${formatDateTime(log.time)}</span>
+                <span class="font-mono font-bold text-slate-500 dark:text-slate-400">${formatDateTime(log.time, log.eventTime)}</span>
                 <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${getStatusBadgeClass(log.status)}">${escapeHTML(log.status)}</span>
                 <span class="font-semibold text-slate-700 dark:text-slate-200">oleh ${escapeHTML(log.pic)}</span>
               </div>
@@ -1679,22 +1701,24 @@ function getOrCreateSheet() {
         const closed = isIssueClosed(issue.status);
         const endTs = closed && issue.resolvedAt ? new Date(issue.resolvedAt).getTime() : now;
         const duration = formatDuration(endTs - new Date(issue.createdAt).getTime());
+        const jamStr = formatTimeShort(issue.createdAt, issue.eventTime);
 
         let lines = [
           `*UPDATE PROBLEM MESIN MACH TIMUR - ${issue.line}*`,
           `• *Mesin:* ${issue.machine}${issue.alarmCode ? ` (Alarm: ${issue.alarmCode})` : ''}`,
+          `• *Jam:* ${jamStr}`,
           `• *Status:* ${issue.status} (${issue.priority})`,
           `• *Downtime:* ${duration}`,
           `• *Problem:* ${issue.symptom}`,
           `• *Action:* ${issue.actionPlan}`
         ];
         if (issue.sparepart) lines.push(`• *Sparepart:* ${issue.sparepart}`);
-        lines.push(`• *PIC:* ${issue.pic} (${issue.shift})`);
+        lines.push(`• *PIC:* ${issue.pic}`);
 
         if (issue.logs && issue.logs.length > 0) {
           lines.push(`• *Detail Activity:*`);
           issue.logs.forEach(l => {
-            lines.push(`  - [${formatTimeShort(l.time)}] (${l.status}) ${l.note} - _${l.pic}_`);
+            lines.push(`  - [${formatTimeShort(l.time, l.eventTime)}] (${l.status}) ${l.note} - _${l.pic}_`);
           });
         }
 
@@ -1728,18 +1752,19 @@ function getOrCreateSheet() {
             const endTs = closed && item.resolvedAt ? new Date(item.resolvedAt).getTime() : Date.now();
             const dur = formatDuration(endTs - new Date(item.createdAt).getTime());
             const statusIcon = closed ? '✅' : item.priority === 'Critical' ? '🚨' : '🔧';
+            const jamStr = formatTimeShort(item.createdAt, item.eventTime);
 
             text += `${idx + 1}. ${statusIcon} *[${item.line}] ${item.machine}*${item.alarmCode ? ` [${item.alarmCode}]` : ''}\n`;
-            text += `   • Status: *${item.status}* (${item.priority}) | Durasi: ${dur}\n`;
+            text += `   • Jam: ${jamStr} | Status: *${item.status}* (${item.priority}) | Durasi: ${dur}\n`;
             text += `   • Problem: ${item.symptom}\n`;
             text += `   • Action: ${item.actionPlan}\n`;
             if (item.sparepart) text += `   • Sparepart: ${item.sparepart}\n`;
-            text += `   • PIC: ${item.pic} (${item.shift})\n`;
+            text += `   • PIC: ${item.pic}\n`;
 
             if (includeActivity && item.logs && item.logs.length > 0) {
               text += `   • Detail Activity:\n`;
               item.logs.forEach(l => {
-                text += `     - [${formatTimeShort(l.time)}] ${l.status}: ${l.note} (${l.pic})\n`;
+                text += `     - [${formatTimeShort(l.time, l.eventTime)}] ${l.status}: ${l.note} (${l.pic})\n`;
               });
             }
             text += `\n`;
@@ -1750,9 +1775,10 @@ function getOrCreateSheet() {
           text += `*ACTIVITY TAMBAHAN (PM / REPAIR SPAREPART)*\n`;
           text += `------------------------------------\n`;
           state.activities.forEach((act, idx) => {
+            const jamAct = formatTimeShort(act.createdAt, act.eventTime);
             text += `${idx + 1}. *[${act.line}] ${act.target}* (${act.type})\n`;
-            text += `   • Pekerjaan: ${act.description}\n`;
-            text += `   • Status: ${act.status} | PIC: ${act.pic} (${act.shift})\n\n`;
+            text += `   • Jam: ${jamAct} | Pekerjaan: ${act.description}\n`;
+            text += `   • Status: ${act.status} | PIC: ${act.pic}\n\n`;
           });
         }
 
@@ -1770,10 +1796,10 @@ function getOrCreateSheet() {
           showToast('Belum ada data untuk diekspor ke CSV.', 'warning');
           return;
         }
-        const headers = ['ID', 'Waktu Lapor', 'Lini', 'Mesin', 'Kategori', 'Prioritas', 'Kode Alarm', 'Problem', 'Action Plan', 'Sparepart', 'Status', 'PIC', 'Shift'];
+        const headers = ['ID', 'Waktu Lapor', 'Jam', 'Lini', 'Mesin', 'Kategori', 'Prioritas', 'Kode Alarm', 'Problem', 'Action Plan', 'Sparepart', 'Status', 'PIC'];
         const rows = state.issues.map(i => [
-          i.id, i.createdAt, i.line, i.machine, i.category, i.priority, i.alarmCode || '',
-          i.symptom, i.actionPlan, i.sparepart || '', i.status, i.pic, i.shift
+          i.id, i.createdAt, formatTimeShort(i.createdAt, i.eventTime), i.line, i.machine, i.category, i.priority, i.alarmCode || '',
+          i.symptom, i.actionPlan, i.sparepart || '', i.status, i.pic
         ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
 
         const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows].join('\n');
@@ -1813,7 +1839,6 @@ function getOrCreateSheet() {
       }
 
       function bindEvents() {
-        // Theme toggle
         const toggleTheme = () => {
           const html = document.documentElement;
           const isDark = html.classList.toggle('dark');
@@ -1822,7 +1847,6 @@ function getOrCreateSheet() {
         document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
         document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
 
-        // Open Modals
         document.getElementById('btn-open-new')?.addEventListener('click', () => openModal('modal-new-issue'));
         document.getElementById('btn-mobile-new')?.addEventListener('click', () => openModal('modal-new-issue'));
 
@@ -1859,12 +1883,10 @@ function getOrCreateSheet() {
           openModal('modal-cloud-sync');
         });
 
-        // Close Modals
         document.querySelectorAll('[data-close-modal]').forEach(btn => {
           btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close-modal')));
         });
 
-        // Cloud Sync Buttons
         document.getElementById('btn-save-gas-url')?.addEventListener('click', () => {
           const val = document.getElementById('input-gas-url')?.value.trim();
           if (!val || !val.startsWith('https://')) {
@@ -1898,7 +1920,6 @@ function getOrCreateSheet() {
           copyTextToClipboard(code, 'Kode Google Apps Script berhasil disalin!');
         });
 
-        // Photo handlers for New Issue
         const handleNewPhotoSelect = async (e) => {
           const file = e.target.files?.[0];
           if (!file) return;
@@ -1920,7 +1941,6 @@ function getOrCreateSheet() {
           document.getElementById('new-photo-preview-wrap').classList.add('hidden');
         });
 
-        // Photo handlers for Update Log
         const handleLogPhotoSelect = async (e) => {
           const file = e.target.files?.[0];
           if (!file) return;
@@ -1942,10 +1962,10 @@ function getOrCreateSheet() {
           document.getElementById('log-photo-preview-wrap').classList.add('hidden');
         });
 
-        // Submit New Issue
         document.getElementById('form-new-issue')?.addEventListener('submit', (e) => {
           e.preventDefault();
-          const nowIso = new Date().toISOString();
+          const eventTime = document.getElementById('input-time').value || getCurrentHHMM();
+          const createdIso = buildIsoFromTimeHHMM(eventTime);
           const status = document.getElementById('input-status').value;
           const pic = document.getElementById('input-pic').value.trim();
           const actionPlan = document.getElementById('input-action').value.trim();
@@ -1961,14 +1981,15 @@ function getOrCreateSheet() {
             actionPlan: actionPlan,
             sparepart: document.getElementById('input-part').value.trim(),
             pic: pic,
-            shift: document.getElementById('input-shift').value,
+            eventTime: eventTime,
             status: status,
             photo: pendingNewPhotoDataUrl,
-            createdAt: nowIso,
-            resolvedAt: isIssueClosed(status) ? nowIso : null,
+            createdAt: createdIso,
+            resolvedAt: isIssueClosed(status) ? new Date().toISOString() : null,
             logs: [
               {
-                time: nowIso,
+                time: createdIso,
+                eventTime: eventTime,
                 status: status,
                 note: actionPlan,
                 pic: pic,
@@ -1988,7 +2009,6 @@ function getOrCreateSheet() {
           showToast(`Problem ${newIssue.machine} berhasil dicatat!`, 'success');
         });
 
-        // Submit Update Log
         document.getElementById('form-add-log')?.addEventListener('submit', (e) => {
           e.preventDefault();
           const id = document.getElementById('log-issue-id').value;
@@ -2000,6 +2020,7 @@ function getOrCreateSheet() {
           const part = document.getElementById('log-part').value.trim();
           const note = document.getElementById('log-note').value.trim();
           const nowIso = new Date().toISOString();
+          const eventTime = getCurrentHHMM();
 
           issue.status = newStatus;
           issue.actionPlan = note;
@@ -2013,6 +2034,7 @@ function getOrCreateSheet() {
           if (!Array.isArray(issue.logs)) issue.logs = [];
           issue.logs.push({
             time: nowIso,
+            eventTime: eventTime,
             status: newStatus,
             note: note,
             pic: pic,
@@ -2025,9 +2047,9 @@ function getOrCreateSheet() {
           showToast('Update progres berhasil ditambahkan!', 'success');
         });
 
-        // Submit New Activity
         document.getElementById('form-new-activity')?.addEventListener('submit', (e) => {
           e.preventDefault();
+          const eventTime = document.getElementById('act-time').value || getCurrentHHMM();
           const newAct = {
             id: 'ACT-' + Date.now(),
             type: document.getElementById('act-type').value,
@@ -2035,9 +2057,9 @@ function getOrCreateSheet() {
             target: document.getElementById('act-target').value.trim(),
             description: document.getElementById('act-desc').value.trim(),
             pic: document.getElementById('act-pic').value.trim(),
-            shift: document.getElementById('act-shift').value,
+            eventTime: eventTime,
             status: document.getElementById('act-status').value,
-            createdAt: new Date().toISOString()
+            createdAt: buildIsoFromTimeHHMM(eventTime)
           };
 
           state.activities.unshift(newAct);
@@ -2048,7 +2070,6 @@ function getOrCreateSheet() {
           showToast('Activity tambahan berhasil disimpan!', 'success');
         });
 
-        // Delegated Events on Issues Container
         document.getElementById('issues-container')?.addEventListener('change', (e) => {
           const statusSelect = e.target.closest('[data-quick-status]');
           if (statusSelect) {
@@ -2066,6 +2087,7 @@ function getOrCreateSheet() {
             if (!Array.isArray(issue.logs)) issue.logs = [];
             issue.logs.push({
               time: nowIso,
+              eventTime: getCurrentHHMM(),
               status: newStatus,
               note: `Status diubah menjadi ${newStatus}`,
               pic: issue.pic
@@ -2118,7 +2140,6 @@ function getOrCreateSheet() {
           }
         });
 
-        // Delegated Delete on Activities Container
         document.getElementById('activities-container')?.addEventListener('click', (e) => {
           const delActBtn = e.target.closest('[data-delete-activity]');
           if (delActBtn) {
@@ -2130,7 +2151,6 @@ function getOrCreateSheet() {
           }
         });
 
-        // Filter & Search Controls
         document.querySelectorAll('#status-tabs .status-tab').forEach(tab => {
           tab.addEventListener('click', () => {
             document.querySelectorAll('#status-tabs .status-tab').forEach(t => {
@@ -2164,7 +2184,6 @@ function getOrCreateSheet() {
           renderIssues();
         });
 
-        // Clear All Data (Two-step confirmation without confirm())
         let clearConfirmTimeout = null;
         document.getElementById('btn-reset-data')?.addEventListener('click', function () {
           if (this.dataset.confirming !== '1') {
@@ -2186,17 +2205,15 @@ function getOrCreateSheet() {
           showToast('Semua data berhasil dibersihkan.', 'info');
         });
 
-        // Share Modal Checkboxes & Copy
         document.getElementById('share-include-resolved')?.addEventListener('change', generateShiftReportText);
         document.getElementById('share-include-activity')?.addEventListener('change', generateShiftReportText);
         document.getElementById('share-include-extra-activities')?.addEventListener('change', generateShiftReportText);
 
         document.getElementById('btn-copy-report')?.addEventListener('click', () => {
           const text = document.getElementById('share-report-text')?.value || '';
-          copyTextToClipboard(text, 'Laporan Shift berhasil disalin ke clipboard!');
+          copyTextToClipboard(text, 'Laporan berhasil disalin ke clipboard!');
         });
 
-        // Export CSV
         document.getElementById('btn-export-csv')?.addEventListener('click', exportToCSV);
       }
 
@@ -2214,12 +2231,10 @@ function getOrCreateSheet() {
         updateClock();
         setInterval(updateClock, 1000);
 
-        // Refresh downtime counters every 60 seconds
         setInterval(() => {
           renderIssues();
         }, 60000);
 
-        // Auto-pull from Google Sheets every 15 seconds if configured
         setInterval(() => {
           if (getGasUrl()) pullIssuesFromCloud(true);
         }, 15000);
