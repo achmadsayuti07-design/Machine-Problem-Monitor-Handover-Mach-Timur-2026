@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Mach Timur Monitor" />
+  <link id="dynamic-manifest" rel="manifest" />
+  <link id="apple-touch-icon" rel="apple-touch-icon" />
+  <title>Machine Problem Monitor & Handover Mach Timur</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono for Alarm Codes / Timers -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome for Industrial Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            industrial: {
+              950: '#070b14',
+              900: '#0f172a',
+              800: '#1e293b',
+              700: '#334155',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 9999px;
+    }
+    .dark ::-webkit-scrollbar-thumb {
+      background: #475569;
+    }
+    @keyframes pulse-border {
+      0%, 100% { border-color: rgba(239, 68, 68, 0.8); }
+      50% { border-color: rgba(239, 68, 68, 0.25); }
+    }
+    .critical-pulse {
+      animation: pulse-border 2s infinite;
+    }
+    .pb-safe {
+      padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen flex flex-col pb-20 sm:pb-0 transition-colors duration-200">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-20 sm:bottom-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Dismissible PWA Install Banner for Mobile -->
+  <div id="pwa-install-banner" class="hidden bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 px-4 py-2.5 shadow-md z-40">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5 text-xs sm:text-sm font-bold">
+        <i class="fa-solid fa-mobile-screen-button text-base"></i>
+        <span>Install aplikasi ini di Home Screen HP untuk akses cepat di lapangan!</span>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button id="btn-trigger-install" type="button" class="px-3 py-1.5 rounded-lg bg-slate-950 text-white text-xs font-bold hover:bg-slate-800 transition">
+          Install / Cara Pasang
+        </button>
+        <button id="btn-dismiss-banner" type="button" aria-label="Tutup Banner" class="p-1.5 rounded-lg hover:bg-amber-600/30 transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Navigation / Industrial Header -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <!-- Brand & Live Clock -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center shadow-inner font-bold text-lg">
+              <i class="fa-solid fa-industry"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">Machine Problem Monitor & Handover Mach Timur</h1>
+                <span class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> LIVE
+                </span>
+              </div>
+              <p class="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
+                <span>Machining SZ, KR, WA & AGV Supply</span>
+                <span>•</span>
+                <span id="live-clock" class="font-mono text-amber-400 font-semibold">--:--:--</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Dark Mode Toggle on Mobile -->
+          <button id="theme-toggle-mobile" type="button" aria-label="Toggle Dark Mode" class="md:hidden p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition">
+            <i class="fa-solid fa-moon dark:hidden"></i>
+            <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+          </button>
+        </div>
+
+        <!-- Primary Action Buttons -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button id="theme-toggle" type="button" title="Ubah Tema Terang/Gelap" class="hidden md:inline-flex items-center justify-center w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">
+            <i class="fa-solid fa-moon dark:hidden"></i>
+            <i class="fa-solid fa-sun hidden dark:inline text-amber-400"></i>
+          </button>
+
+          <button id="btn-export-csv" type="button" class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-semibold border border-slate-700 transition">
+            <i class="fa-solid fa-file-csv text-emerald-400"></i>
+            <span>Export CSV</span>
+          </button>
+
+          <button id="btn-open-new" type="button" class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs sm:text-sm font-bold shadow-sm transition">
+            <i class="fa-solid fa-plus"></i>
+            <span>Lapor Problem Baru</span>
+          </button>
+
+          <button id="btn-open-activity" type="button" class="hidden sm:inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-bold shadow-sm transition">
+            <i class="fa-solid fa-list-check"></i>
+            <span>+ Activity PM/Repair</span>
+          </button>
+
+          <button id="btn-open-share" type="button" class="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-bold shadow-sm transition">
+            <i class="fa-brands fa-whatsapp text-base"></i>
+            <span>Share Shift</span>
+          </button>
+
+          <button id="btn-open-pwa-guide" type="button" title="Install Aplikasi di HP" class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs sm:text-sm font-semibold border border-slate-700 transition">
+            <i class="fa-solid fa-download"></i>
+            <span class="hidden sm:inline">App HP</span>
+          </button>
+
+          <button id="btn-open-cloud-sync" type="button" title="Pengaturan Sinkronisasi Google Sheets" class="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 text-xs sm:text-sm font-semibold border border-slate-700 transition">
+            <i id="cloud-status-icon" class="fa-solid fa-cloud"></i>
+            <span id="cloud-status-label" class="hidden sm:inline">Sync Cloud</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- KPI Summary Cards (6 Cards) -->
+    <section aria-label="Ringkasan KPI" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      <!-- Total Issue Aktif -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Issue Aktif</span>
+          <span class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+            <i class="fa-solid fa-screwdriver-wrench text-sm"></i>
+          </span>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span id="kpi-active" class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono">0</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">mesin</span>
+        </div>
+      </div>
+
+      <!-- Critical / Line Stop -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-red-200 dark:border-red-900/50 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">Critical / Stop</span>
+          <span class="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/60 text-red-600 dark:text-red-400 flex items-center justify-center">
+            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+          </span>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span id="kpi-critical" class="text-2xl sm:text-3xl font-extrabold text-red-600 dark:text-red-400 font-mono">0</span>
+          <span class="text-xs text-red-500/80">line stop</span>
+        </div>
+      </div>
+
+      <!-- Waiting Sparepart -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-amber-200 dark:border-amber-900/50 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">Waiting Part</span>
+          <span class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+            <i class="fa-solid fa-box-open text-sm"></i>
+          </span>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span id="kpi-waiting" class="text-2xl sm:text-3xl font-extrabold text-amber-600 dark:text-amber-400 font-mono">0</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">pending</span>
+        </div>
+      </div>
+
+      <!-- Waiting Time -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-orange-200 dark:border-orange-900/50 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-orange-600 dark:text-orange-400">Waiting Time</span>
+          <span class="w-8 h-8 rounded-xl bg-orange-50 dark:bg-orange-950/60 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+            <i class="fa-solid fa-hourglass-half text-sm"></i>
+          </span>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span id="kpi-waiting-time" class="text-2xl sm:text-3xl font-extrabold text-orange-600 dark:text-orange-400 font-mono">0</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">pending</span>
+        </div>
+      </div>
+
+      <!-- Terselesaikan / Close Hari Ini -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-emerald-200 dark:border-emerald-900/50 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Close / Selesai</span>
+          <span class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+            <i class="fa-solid fa-circle-check text-sm"></i>
+          </span>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span id="kpi-resolved" class="text-2xl sm:text-3xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">0</span>
+          <span class="text-xs text-slate-500 dark:text-slate-400">selesai</span>
+        </div>
+      </div>
+
+      <!-- Total Downtime Aktif -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Downtime Aktif</span>
+          <span class="w-8 h-8 rounded-xl bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+            <i class="fa-solid fa-stopwatch text-sm"></i>
+          </span>
+        </div>
+        <div class="mt-3 flex items-baseline gap-2">
+          <span id="kpi-downtime" class="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white font-mono">0j 0m</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filter, Search & View Controls -->
+    <section class="bg-white dark:bg-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+      <!-- Status Quick Tabs -->
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div id="status-tabs" class="flex flex-wrap items-center gap-1.5">
+          <button data-status="ALL" class="status-tab active px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-white dark:bg-amber-500 dark:text-slate-950 transition">
+            Semua (<span class="count">0</span>)
+          </button>
+          <button data-status="Reported" class="status-tab px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            Reported (<span class="count">0</span>)
+          </button>
+          <button data-status="Diagnosing" class="status-tab px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            Diagnosing (<span class="count">0</span>)
+          </button>
+          <button data-status="In Progress" class="status-tab px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            In Progress (<span class="count">0</span>)
+          </button>
+          <button data-status="Waiting Part" class="status-tab px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            Waiting Part (<span class="count">0</span>)
+          </button>
+          <button data-status="Waiting Time" class="status-tab px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            Waiting Time (<span class="count">0</span>)
+          </button>
+          <button data-status="Terselesaikan / Close" class="status-tab px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition">
+            Terselesaikan / Close (<span class="count">0</span>)
+          </button>
+        </div>
+
+        <!-- Clear Data Button -->
+        <button id="btn-reset-data" type="button" class="text-xs font-medium text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-trash-can"></i>
+          <span>Bersihkan Semua Data</span>
+        </button>
+      </div>
+
+      <!-- Search & Dropdown Filters -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3">
+        <!-- Search Input -->
+        <div class="lg:col-span-5 relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+          <input id="filter-search" type="text" placeholder="Cari mesin, kode alarm, gejala, atau nama PIC..." class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition" />
+        </div>
+
+        <!-- Filter Lini -->
+        <div class="lg:col-span-3">
+          <select id="filter-line" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition">
+            <option value="ALL">Semua Lini Produksi</option>
+            <option value="Machining WA">Lini Machining WA</option>
+            <option value="Machining KR">Lini Machining KR</option>
+            <option value="Machining SZ">Lini Machining SZ</option>
+            <option value="AGV SUPPLY">AGV SUPPLY</option>
+          </select>
+        </div>
+
+        <!-- Filter Prioritas -->
+        <div class="lg:col-span-2">
+          <select id="filter-priority" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition">
+            <option value="ALL">Semua Prioritas</option>
+            <option value="Critical">Critical (Line Stop)</option>
+            <option value="High">High (Degraded)</option>
+            <option value="Medium">Medium (Minor)</option>
+            <option value="Low">Low (Preventive)</option>
+          </select>
+        </div>
+
+        <!-- Sort By -->
+        <div class="lg:col-span-2">
+          <select id="filter-sort" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 transition">
+            <option value="priority">Urut: Prioritas Tertinggi</option>
+            <option value="newest">Urut: Terbaru Dilaporkan</option>
+            <option value="downtime">Urut: Downtime Terlama</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Problem Cards Grid -->
+    <section aria-label="Daftar Problem Mesin">
+      <div id="issues-container" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <!-- Cards rendered dynamically via JS -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden bg-white dark:bg-slate-900 rounded-2xl p-10 border border-dashed border-slate-300 dark:border-slate-700 text-center space-y-3">
+        <div class="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-400 mx-auto flex items-center justify-center text-2xl">
+          <i class="fa-solid fa-clipboard-check"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-800 dark:text-slate-200">Tidak ada problem mesin ditemukan</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">Coba ubah filter pencarian Anda atau laporkan problem mesin baru jika terjadi kendala di lini produksi.</p>
+      </div>
+    </section>
+
+    <!-- Additional Activities Section (PM, Repair Sparepart, Kaizen, dll) -->
+    <section aria-label="Activity Tambahan PM dan Repair" class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+            <i class="fa-solid fa-list-check text-sm"></i>
+          </span>
+          <div>
+            <h2 class="text-sm sm:text-base font-extrabold text-slate-900 dark:text-white">
+              Activity Tambahan (PM / Repair Sparepart / Improvement)
+            </h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">
+              Catatan pekerjaan rutin di luar problem mesin yang otomatis masuk ke laporan Share Shift
+            </p>
+          </div>
+        </div>
+        <button id="btn-open-activity-section" type="button" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-sm transition">
+          <i class="fa-solid fa-plus"></i>
+          <span>Tambah Activity</span>
+        </button>
+      </div>
+
+      <div id="activities-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <!-- Rendered dynamically via JS -->
+      </div>
+
+      <div id="activities-empty" class="text-center py-6 px-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-dashed border-slate-200 dark:border-slate-700 text-xs text-slate-500 dark:text-slate-400">
+        Belum ada activity tambahan (PM / Repair Sparepart) yang dicatat pada shift ini.
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+      <p>Machine Problem Monitor & Handover Mach Timur • Data tersimpan otomatis di browser (Local Storage)</p>
+      <p id="last-sync-info">Terakhir diperbarui: Baru saja</p>
+    </div>
+  </footer>
+
+  <!-- Mobile Bottom Floating Action Bar -->
+  <div class="sm:hidden fixed bottom-0 inset-x-0 z-30 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-3 py-2.5 pb-safe flex items-center justify-between gap-2 shadow-2xl">
+    <button id="btn-mobile-share" type="button" class="flex-1 py-3 px-2.5 rounded-xl bg-emerald-600 active:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm">
+      <i class="fa-brands fa-whatsapp text-base"></i>
+      <span>Share</span>
+    </button>
+    <button id="btn-mobile-activity" type="button" class="flex-1 py-3 px-2.5 rounded-xl bg-indigo-600 active:bg-indigo-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm">
+      <i class="fa-solid fa-list-check"></i>
+      <span>+ PM/Repair</span>
+    </button>
+    <button id="btn-mobile-new" type="button" class="flex-[1.3] py-3 px-3 rounded-xl bg-amber-500 active:bg-amber-400 text-slate-950 text-xs font-extrabold flex items-center justify-center gap-1.5 shadow-md">
+      <i class="fa-solid fa-camera"></i>
+      <span>+ Problem</span>
+    </button>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 1: FORM INPUT PROBLEM MESIN BARU                                -->
+  <!-- ===================================================================== -->
+  <div id="modal-new-issue" class="fixed inset-0 z-40 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-plus"></i>
+          </span>
+          <div>
+            <h2 class="text-base font-bold">Lapor Problem Mesin Baru</h2>
+            <p class="text-xs text-slate-400">Isi detail kerusakan untuk tracking & serah terima shift Mach Timur</p>
+          </div>
+        </div>
+        <button type="button" data-close-modal="modal-new-issue" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="form-new-issue" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Nama / Kode Mesin -->
+          <div>
+            <label for="input-machine" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Nama / Kode Mesin <span class="text-red-500">*</span>
+            </label>
+            <input id="input-machine" list="machine-presets" type="text" required placeholder="Contoh: FLX 3DH / TVT Toyosk #301" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+            <datalist id="machine-presets">
+              <option value="FLX 3DH">
+              <option value="FLX 4DH">
+              <option value="TVT Toyosk #301">
+              <option value="WASHING & AIR BLOW">
+              <option value="RAW MATERIAL">
+              <option value="LEAK TESTER">
+              <option value="ROBOT EPSON">
+              <option value="ROBOT YASKAWA">
+              <option value="LOADER">
+              <option value="HARDENING">
+              <option value="GRINDING">
+              <option value="MACHINE PRESS">
+            </datalist>
+          </div>
+
+          <!-- Lini / Area Produksi -->
+          <div>
+            <label for="input-line" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Lini / Area Produksi <span class="text-red-500">*</span>
+            </label>
+            <select id="input-line" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="Machining WA">Machining WA</option>
+              <option value="Machining KR">Machining KR</option>
+              <option value="Machining SZ">Machining SZ</option>
+              <option value="AGV SUPPLY">AGV SUPPLY</option>
+            </select>
+          </div>
+
+          <!-- Kategori Problem -->
+          <div>
+            <label for="input-category" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Kategori Problem <span class="text-red-500">*</span>
+            </label>
+            <select id="input-category" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="Mechanical">Mechanical</option>
+              <option value="Electrical">Electrical</option>
+              <option value="PLC / Automation">PLC / Automation</option>
+              <option value="Pneumatic / Hydraulic">Pneumatic / Hydraulic</option>
+              <option value="Sensor / Camera">Sensor / Camera</option>
+            </select>
+          </div>
+
+          <!-- Prioritas / Dampak -->
+          <div>
+            <label for="input-priority" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Prioritas / Dampak <span class="text-red-500">*</span>
+            </label>
+            <select id="input-priority" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="Critical">Critical - Line Stop</option>
+              <option value="High">High - Degraded / Cycle Melambat</option>
+              <option value="Medium" selected>Medium - Minor / Bisa Jalan</option>
+              <option value="Low">Low - Preventive / Monitoring</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Kode Alarm & Gejala -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="input-alarm" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Kode Alarm (Opsional)
+            </label>
+            <input id="input-alarm" type="text" placeholder="Misal: SV0436 / E-104" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div class="sm:col-span-2">
+            <label for="input-symptom" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Deskripsi Masalah & Gejala <span class="text-red-500">*</span>
+            </label>
+            <input id="input-symptom" type="text" required placeholder="Misal: Servo B-axis overload saat index tool change" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </div>
+        </div>
+
+        <!-- Action Plan & Kebutuhan Sparepart -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="input-action" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Tindakan / Action Plan Saat Ini <span class="text-red-500">*</span>
+            </label>
+            <textarea id="input-action" rows="2" required placeholder="Misal: Cek kabel encoder & ukur tahanan motor servo B-axis" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+          </div>
+          <div>
+            <label for="input-part" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Kebutuhan Sparepart (Opsional)
+            </label>
+            <textarea id="input-part" rows="2" placeholder="Misal: Proximity Sensor Omron E2E-X5ME1 (1 pcs)" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+          </div>
+        </div>
+
+        <!-- Camera / Photo Capture Section -->
+        <div class="bg-slate-50 dark:bg-slate-800/70 p-3.5 rounded-xl border border-dashed border-slate-300 dark:border-slate-700 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
+                <i class="fa-solid fa-image text-amber-500 mr-1"></i> Foto Kondisi Mesin / Alarm (Opsional)
+              </span>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400">Bisa foto langsung dari kamera atau pilih dari galeri HP/laptop</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <label for="input-photo-camera" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-amber-500 dark:hover:bg-amber-400 text-white dark:text-slate-950 text-xs font-bold shadow-sm transition">
+                <i class="fa-solid fa-camera"></i>
+                <span>Kamera</span>
+              </label>
+              <label for="input-photo-gallery" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-600 text-xs font-bold shadow-sm transition">
+                <i class="fa-regular fa-images text-blue-500 dark:text-sky-400"></i>
+                <span>Pilih Galeri</span>
+              </label>
+            </div>
+            <input id="input-photo-camera" type="file" accept="image/*" capture="environment" class="hidden" />
+            <input id="input-photo-gallery" type="file" accept="image/*" class="hidden" />
+          </div>
+
+          <!-- Live Preview Thumbnail -->
+          <div id="new-photo-preview-wrap" class="hidden relative inline-block mt-2">
+            <img id="new-photo-preview" src="" alt="Preview Foto Mesin" class="h-32 w-auto max-w-full rounded-xl object-cover border border-slate-300 dark:border-slate-600 shadow-sm" />
+            <button id="btn-remove-new-photo" type="button" class="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold shadow transition">
+              <i class="fa-solid fa-trash-can"></i>
+              <span>Hapus Foto</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- PIC, Shift & Status Awal -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="input-pic" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              PIC / Teknisi <span class="text-red-500">*</span>
+            </label>
+            <input id="input-pic" type="text" required placeholder="Nama teknisi" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500" />
+          </div>
+          <div>
+            <label for="input-shift" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Shift <span class="text-red-500">*</span>
+            </label>
+            <select id="input-shift" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="Shift 1 (07:15 - 20:00)">Shift 1 (07:15 - 20:00)</option>
+              <option value="Shift 2 (20:00 - 07:00)">Shift 2 (20:00 - 07:00)</option>
+            </select>
+          </div>
+          <div>
+            <label for="input-status" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Status Awal
+            </label>
+            <select id="input-status" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="Reported">Reported</option>
+              <option value="Diagnosing">Diagnosing</option>
+              <option value="In Progress" selected>In Progress</option>
+              <option value="Waiting Part">Waiting Part</option>
+              <option value="Waiting Time">Waiting Time</option>
+              <option value="Terselesaikan / Close">Terselesaikan / Close</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
+          <button type="button" data-close-modal="modal-new-issue" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            Batal
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm transition">
+            <i class="fa-solid fa-paper-plane mr-1.5"></i> Simpan & Publish Update
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 2: TAMBAH UPDATE LOG / RIWAYAT PER ITEM MESIN                   -->
+  <!-- ===================================================================== -->
+  <div id="modal-update-log" class="fixed inset-0 z-40 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div>
+          <h2 id="log-modal-title" class="text-base font-bold">Update Progress & Riwayat Log</h2>
+          <p id="log-modal-subtitle" class="text-xs text-slate-400">Mesin: -</p>
+        </div>
+        <button type="button" data-close-modal="modal-update-log" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <form id="form-add-log" class="space-y-3 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+          <input type="hidden" id="log-issue-id" />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Update Status</label>
+              <select id="log-new-status" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm">
+                <option value="Reported">Reported</option>
+                <option value="Diagnosing">Diagnosing</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Waiting Part">Waiting Part</option>
+                <option value="Waiting Time">Waiting Time</option>
+                <option value="Terselesaikan / Close">Terselesaikan / Close</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Nama PIC Update <span class="text-red-500">*</span></label>
+              <input id="log-pic" type="text" required placeholder="Nama teknisi" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Update Sparepart (Opsional)</label>
+            <input id="log-part" type="text" placeholder="Kosongkan jika tidak ada perubahan part" class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Catatan Progres / Temuan Terbaru <span class="text-red-500">*</span></label>
+            <textarea id="log-note" rows="2" required placeholder="Misal: Sudah ganti solenoid valve, sedang test run 10 cycle..." class="w-full px-3 py-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></textarea>
+          </div>
+
+          <!-- Camera Photo Capture in Update Log -->
+          <div class="pt-1 space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-slate-600 dark:text-slate-300">
+                <i class="fa-solid fa-image text-blue-500 mr-1"></i> Lampirkan Foto Progres (Opsional)
+              </span>
+              <div class="flex flex-wrap items-center gap-2">
+                <label for="log-photo-camera" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition">
+                  <i class="fa-solid fa-camera"></i>
+                  <span>Kamera</span>
+                </label>
+                <label for="log-photo-gallery" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-100 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white border border-slate-300 dark:border-slate-600 text-xs font-bold transition">
+                  <i class="fa-regular fa-images text-blue-500 dark:text-sky-400"></i>
+                  <span>Galeri</span>
+                </label>
+              </div>
+              <input id="log-photo-camera" type="file" accept="image/*" capture="environment" class="hidden" />
+              <input id="log-photo-gallery" type="file" accept="image/*" class="hidden" />
+            </div>
+
+            <div id="log-photo-preview-wrap" class="hidden space-y-1.5">
+              <img id="log-photo-preview" src="" alt="Preview Foto Update" class="h-28 w-auto max-w-full rounded-xl object-cover border border-slate-300 dark:border-slate-600" />
+              <div>
+                <button id="btn-remove-log-photo" type="button" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition">
+                  <i class="fa-solid fa-trash-can"></i>
+                  <span>Hapus Foto</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold transition">
+            <i class="fa-solid fa-clock-rotate-left mr-1.5"></i> Simpan Catatan Update
+          </button>
+        </form>
+
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2.5">Riwayat Aktivitas Mesin</h3>
+          <div id="log-timeline" class="space-y-3 border-l-2 border-slate-200 dark:border-slate-700 ml-2 pl-4"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 3: SHARE LAPORAN SHIFT / WHATSAPP SUMMARY                       -->
+  <!-- ===================================================================== -->
+  <div id="modal-share-report" class="fixed inset-0 z-40 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
+      <div class="px-6 py-4 bg-emerald-700 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <i class="fa-brands fa-whatsapp text-2xl"></i>
+          <div>
+            <h2 class="text-base font-bold">Laporan Ringkasan Shift Handover Mach Timur</h2>
+            <p class="text-xs text-emerald-100">Siap disalin atau dikirim langsung ke grup WhatsApp / Telegram</p>
+          </div>
+        </div>
+        <button type="button" data-close-modal="modal-share-report" class="p-2 rounded-lg text-emerald-100 hover:text-white hover:bg-emerald-800 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-50 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+          <div class="flex flex-wrap items-center gap-4">
+            <label class="inline-flex items-center gap-2 text-xs font-semibold cursor-pointer">
+              <input id="share-include-resolved" type="checkbox" checked class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4" />
+              <span>Sertakan mesin Terselesaikan / Close</span>
+            </label>
+            <label class="inline-flex items-center gap-2 text-xs font-semibold cursor-pointer">
+              <input id="share-include-activity" type="checkbox" checked class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4" />
+              <span>Sertakan Detail Riwayat Activity</span>
+            </label>
+            <label class="inline-flex items-center gap-2 text-xs font-semibold cursor-pointer">
+              <input id="share-include-extra-activities" type="checkbox" checked class="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4" />
+              <span>Sertakan Activity Tambahan (PM/Repair)</span>
+            </label>
+          </div>
+          <span class="text-xs text-slate-500 dark:text-slate-400">Format otomatis terstruktur</span>
+        </div>
+
+        <div>
+          <textarea id="share-report-text" rows="12" readonly class="w-full p-4 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs leading-relaxed border border-slate-700 focus:outline-none"></textarea>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-end gap-2.5">
+          <button id="btn-copy-report" type="button" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-sm font-bold transition">
+            <i class="fa-regular fa-copy"></i>
+            <span>Salin ke Clipboard</span>
+          </button>
+          <a id="btn-wa-direct" href="#" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold shadow-sm transition">
+            <i class="fa-brands fa-whatsapp text-base"></i>
+            <span>Kirim ke WhatsApp</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 7: FORM INPUT ACTIVITY TAMBAHAN (PM / REPAIR SPAREPART)         -->
+  <!-- ===================================================================== -->
+  <div id="modal-new-activity" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
+      <div class="px-6 py-4 bg-indigo-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center font-bold">
+            <i class="fa-solid fa-list-check"></i>
+          </span>
+          <div>
+            <h2 class="text-base font-bold">Tambah Activity Tambahan</h2>
+            <p class="text-xs text-indigo-200">PM, Repair Sparepart, Kalibrasi, atau Improvement</p>
+          </div>
+        </div>
+        <button type="button" data-close-modal="modal-new-activity" class="p-2 rounded-lg text-indigo-200 hover:text-white hover:bg-indigo-800 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="form-new-activity" class="p-6 space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="act-type" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Jenis Activity <span class="text-red-500">*</span>
+            </label>
+            <select id="act-type" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="Preventive Maintenance (PM)">Preventive Maintenance (PM)</option>
+              <option value="Repair Sparepart">Repair Sparepart</option>
+              <option value="Overhaul / Inspection">Overhaul / Inspection</option>
+              <option value="Kaizen / Improvement">Kaizen / Improvement</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="act-line" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Area / Lini <span class="text-red-500">*</span>
+            </label>
+            <select id="act-line" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="Machining WA">Machining WA</option>
+              <option value="Machining KR">Machining KR</option>
+              <option value="Machining SZ">Machining SZ</option>
+              <option value="AGV SUPPLY">AGV SUPPLY</option>
+              <option value="Workshop Maintenance">Workshop Maintenance</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="act-target" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+            Mesin / Nama Sparepart <span class="text-red-500">*</span>
+          </label>
+          <input id="act-target" list="machine-presets" type="text" required placeholder="Misal: FLX 3DH / Spindle Unit / Solenoid Valve" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+        </div>
+
+        <div>
+          <label for="act-desc" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+            Detail Pekerjaan / Hasil <span class="text-red-500">*</span>
+          </label>
+          <textarea id="act-desc" rows="2" required placeholder="Misal: Ganti oli hidrolik, bersihkan filter coolant, dan cek tekanan kerja" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label for="act-pic" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              PIC / Teknisi <span class="text-red-500">*</span>
+            </label>
+            <input id="act-pic" type="text" required placeholder="Nama teknisi" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          </div>
+
+          <div>
+            <label for="act-shift" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Shift <span class="text-red-500">*</span>
+            </label>
+            <select id="act-shift" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="Shift 1 (07:15 - 20:00)">Shift 1 (07:15 - 20:00)</option>
+              <option value="Shift 2 (20:00 - 07:00)">Shift 2 (20:00 - 07:00)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="act-status" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1.5">
+              Status
+            </label>
+            <select id="act-status" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="Selesai">Selesai ✅</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Pending">Pending</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-2.5">
+          <button type="button" data-close-modal="modal-new-activity" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            Batal
+          </button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition">
+            <i class="fa-solid fa-check mr-1.5"></i> Simpan Activity
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 4: PANDUAN INSTALL APLIKASI DI HP (PWA GUIDE)                   -->
+  <!-- ===================================================================== -->
+  <div id="modal-pwa-guide" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+          </span>
+          <div>
+            <h2 class="text-base font-bold">Install Aplikasi di Handphone</h2>
+            <p class="text-xs text-slate-400">Pasang ikon aplikasi di Home Screen HP Anda</p>
+          </div>
+        </div>
+        <button type="button" data-close-modal="modal-pwa-guide" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 text-sm">
+        <div id="native-install-box" class="hidden p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 space-y-2.5">
+          <p class="font-bold text-amber-900 dark:text-amber-300 text-xs uppercase tracking-wider">Instalasi Otomatis Tersedia</p>
+          <button id="btn-native-install-confirm" type="button" class="w-full py-2.5 px-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm shadow transition">
+            <i class="fa-solid fa-download mr-1.5"></i> Pasang Sekarang ke Home Screen
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 space-y-1.5">
+            <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <i class="fa-brands fa-android text-emerald-500 text-base"></i> Android (Google Chrome)
+            </h3>
+            <ol class="list-decimal list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1 leading-relaxed">
+              <li>Buka link aplikasi ini di browser <strong>Chrome</strong>.</li>
+              <li>Ketuk ikon menu <strong>⋮ (tiga titik)</strong> di pojok kanan atas.</li>
+              <li>Pilih <strong>Add to Home screen</strong> atau <strong>Install app</strong>.</li>
+              <li>Konfirmasi <strong>Install / Add</strong> agar muncul di layar utama HP.</li>
+            </ol>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 space-y-1.5">
+            <h3 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <i class="fa-brands fa-apple text-slate-700 dark:text-slate-200 text-base"></i> iPhone / iPad (Safari)
+            </h3>
+            <ol class="list-decimal list-inside text-xs text-slate-600 dark:text-slate-300 space-y-1 leading-relaxed">
+              <li>Buka link aplikasi ini menggunakan browser <strong>Safari</strong>.</li>
+              <li>Ketuk ikon <strong>Share</strong> (kotak dengan panah ke atas) di bagian bawah.</li>
+              <li>Geser ke bawah dan pilih <strong>Add to Home Screen</strong>.</li>
+              <li>Ketuk <strong>Add</strong> di pojok kanan atas.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="pt-2 flex justify-end">
+          <button type="button" data-close-modal="modal-pwa-guide" class="px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-slate-800 text-white text-xs font-bold hover:bg-slate-800 transition">
+            Mengerti
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 5: LIGHTBOX PERBESAR FOTO MESIN                                 -->
+  <!-- ===================================================================== -->
+  <div id="modal-lightbox" class="fixed inset-0 z-50 hidden bg-slate-950/90 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="relative max-w-3xl w-full flex flex-col items-center">
+      <button type="button" data-close-modal="modal-lightbox" class="self-end mb-2 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold flex items-center gap-1.5 transition">
+        <i class="fa-solid fa-xmark"></i> Tutup Foto
+      </button>
+      <img id="lightbox-img" src="" alt="Preview Foto Mesin" class="max-h-[78vh] w-auto max-w-full rounded-2xl border border-slate-700 shadow-2xl object-contain" />
+      <p id="lightbox-caption" class="mt-3 text-xs sm:text-sm text-slate-200 font-semibold text-center"></p>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODAL 6: PENGATURAN SYNC CLOUD (GOOGLE SHEETS APPS SCRIPT)            -->
+  <!-- ===================================================================== -->
+  <div id="modal-cloud-sync" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-2xl w-full border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden my-auto">
+      <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-sky-500 text-slate-950 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+          </span>
+          <div>
+            <h2 class="text-base font-bold">Sinkronisasi Multi-HP (Google Sheets)</h2>
+            <p class="text-xs text-slate-400">Hubungkan ke Google Apps Script agar data real-time di semua HP</p>
+          </div>
+        </div>
+        <button type="button" data-close-modal="modal-cloud-sync" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4 max-h-[82vh] overflow-y-auto text-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+          <span class="text-xs font-bold text-slate-600 dark:text-slate-300">Status Koneksi:</span>
+          <span id="cloud-badge-detail" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+            Mode Lokal (Belum Terhubung)
+          </span>
+        </div>
+
+        <div class="space-y-2">
+          <label for="input-gas-url" class="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
+            URL Web App Google Apps Script
+          </label>
+          <input id="input-gas-url" type="url" placeholder="https://script.google.com/macros/s/AKfycb.../exec" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-sky-500" />
+          <div class="flex flex-wrap items-center gap-2 pt-1">
+            <button id="btn-save-gas-url" type="button" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition">
+              <i class="fa-solid fa-link mr-1"></i> Simpan & Hubungkan
+            </button>
+            <button id="btn-sync-now" type="button" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition">
+              <i class="fa-solid fa-rotate mr-1"></i> Sync Sekarang
+            </button>
+            <button id="btn-disconnect-gas" type="button" class="px-3.5 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition">
+              Putuskan
+            </button>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-700 dark:text-slate-200">Kode Google Apps Script (Copy & Paste ke Google Sheets):</span>
+            <button id="btn-copy-gas-code" type="button" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition">
+              <i class="fa-regular fa-copy mr-1"></i> Salin Kode Script
+            </button>
+          </div>
+          <textarea id="gas-script-template" rows="8" readonly class="w-full p-3 rounded-xl bg-slate-900 text-emerald-300 font-mono text-[11px] leading-relaxed border border-slate-700 focus:outline-none">function doGet(e) {
+  var sheet = getOrCreateSheet();
+  var raw = sheet.getRange('A2').getValue();
+  var parsed = { issues: [], activities: [] };
+  if (raw) {
+    try {
+      var data = JSON.parse(raw);
+      if (Array.isArray(data)) { parsed.issues = data; }
+      else { parsed = data; }
+    } catch (err) {}
+  }
+  return ContentService.createTextOutput(JSON.stringify({
+    ok: true,
+    issues: parsed.issues || [],
+    activities: parsed.activities || []
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  var sheet = getOrCreateSheet();
+  var body = JSON.parse(e.postData.contents);
+  var payload = {
+    issues: body.issues || [],
+    activities: body.activities || []
+  };
+  sheet.getRange('A1').setValue('JSON_DATA');
+  sheet.getRange('B1').setValue('UPDATED_AT');
+  sheet.getRange('A2').setValue(JSON.stringify(payload));
+  sheet.getRange('B2').setValue(new Date().toISOString());
+  return ContentService.createTextOutput(JSON.stringify({ ok: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getOrCreateSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('MachineMonitorDB');
+  if (!sheet) { sheet = ss.insertSheet('MachineMonitorDB'); }
+  return sheet;
+}</textarea>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">
+            Langkah: Buka Google Sheets → <strong>Extensions → Apps Script</strong> → tempel kode di atas → klik <strong>Deploy → New deployment → Web app</strong> (Execute as: <em>Me</em>, Who has access: <em>Anyone</em>) → salin Web App URL ke kolom di atas.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT APPLICATION LOGIC                                          -->
+  <!-- ===================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'factory_machine_issues_v1';
+      const ACTIVITIES_KEY = 'factory_machine_activities_v1';
+      const THEME_KEY = 'factory_monitor_theme';
+      const BANNER_DISMISSED_KEY = 'factory_pwa_banner_dismissed';
+      const GAS_URL_KEY = 'factory_gas_webapp_url';
+      const CLOSED_STATUS = 'Terselesaikan / Close';
+
+      let pendingNewPhotoDataUrl = null;
+      let pendingLogPhotoDataUrl = null;
+      let deferredInstallPrompt = null;
+      let isSyncingCloud = false;
+
+      const state = {
+        issues: [],
+        activities: [],
+        filterStatus: 'ALL',
+        filterLine: 'ALL',
+        filterPriority: 'ALL',
+        filterSearch: '',
+        sortBy: 'priority'
+      };
+
+      function isIssueClosed(status) {
+        return status === CLOSED_STATUS || status === 'Resolved';
+      }
+
+      function compressImageFile(file, maxWidth = 800, quality = 0.72) {
+        return new Promise((resolve, reject) => {
+          if (!file || !file.type.startsWith('image/')) {
+            reject(new Error('File harus berupa gambar'));
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = function (event) {
+            const img = new Image();
+            img.onload = function () {
+              const canvas = document.createElement('canvas');
+              let width = img.width;
+              let height = img.height;
+              if (width > maxWidth) {
+                height = Math.round((height * maxWidth) / width);
+                width = maxWidth;
+              }
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = function () {
+              reject(new Error('Gagal membaca gambar'));
+            };
+            img.src = event.target.result;
+          };
+          reader.onerror = function () {
+            reject(new Error('Gagal membuka file'));
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function initPWA() {
+        const svgIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="#0f172a"/><circle cx="50" cy="50" r="24" fill="none" stroke="#f59e0b" stroke-width="10" stroke-dasharray="12 6"/><circle cx="50" cy="50" r="9" fill="#f59e0b"/></svg>';
+        const iconDataUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+
+        const appleIconLink = document.getElementById('apple-touch-icon');
+        if (appleIconLink) appleIconLink.href = iconDataUrl;
+
+        const manifestObj = {
+          name: 'Machine Problem Monitor & Handover Mach Timur',
+          short_name: 'Mach Timur Monitor',
+          start_url: '.',
+          display: 'standalone',
+          background_color: '#0f172a',
+          theme_color: '#0f172a',
+          icons: [
+            {
+              src: iconDataUrl,
+              sizes: '192x192',
+              type: 'image/svg+xml',
+              purpose: 'any'
+            }
+          ]
+        };
+
+        try {
+          const blob = new Blob([JSON.stringify(manifestObj)], { type: 'application/json' });
+          const manifestUrl = URL.createObjectURL(blob);
+          const manifestLink = document.getElementById('dynamic-manifest');
+          if (manifestLink) manifestLink.href = manifestUrl;
+        } catch (err) {
+          console.warn('Manifest blob setup skipped:', err);
+        }
+
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        const bannerDismissed = localStorage.getItem(BANNER_DISMISSED_KEY) === '1';
+        if (!isStandalone && !bannerDismissed) {
+          const banner = document.getElementById('pwa-install-banner');
+          if (banner) banner.classList.remove('hidden');
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredInstallPrompt = e;
+          const nativeBox = document.getElementById('native-install-box');
+          if (nativeBox) nativeBox.classList.remove('hidden');
+        });
+      }
+
+      // Google Sheets Cloud Sync Helpers
+      function getGasUrl() {
+        const params = new URLSearchParams(window.location.search);
+        const urlParam = params.get('api');
+        if (urlParam && urlParam.startsWith('https://')) {
+          localStorage.setItem(GAS_URL_KEY, urlParam);
+          return urlParam;
+        }
+        return localStorage.getItem(GAS_URL_KEY) || '';
+      }
+
+      function updateCloudStatusUI(status, detailText) {
+        const iconEl = document.getElementById('cloud-status-icon');
+        const labelEl = document.getElementById('cloud-status-label');
+        const badgeEl = document.getElementById('cloud-badge-detail');
+        const gasUrl = getGasUrl();
+
+        if (!gasUrl) {
+          if (iconEl) iconEl.className = 'fa-solid fa-cloud text-slate-400';
+          if (labelEl) labelEl.textContent = 'Sync Cloud';
+          if (badgeEl) {
+            badgeEl.textContent = 'Mode Lokal (Belum Terhubung)';
+            badgeEl.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+          }
+          return;
+        }
+
+        if (status === 'syncing') {
+          if (iconEl) iconEl.className = 'fa-solid fa-arrows-rotate fa-spin text-amber-400';
+          if (labelEl) labelEl.textContent = 'Syncing...';
+        } else if (status === 'error') {
+          if (iconEl) iconEl.className = 'fa-solid fa-cloud-exclamation text-rose-400';
+          if (labelEl) labelEl.textContent = 'Sync Error';
+          if (badgeEl) {
+            badgeEl.textContent = detailText || 'Gagal Terhubung ke Google Sheets';
+            badgeEl.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300';
+          }
+        } else {
+          if (iconEl) iconEl.className = 'fa-solid fa-cloud-check text-emerald-400';
+          if (labelEl) labelEl.textContent = 'Live Cloud';
+          if (badgeEl) {
+            badgeEl.textContent = detailText || 'Terhubung ke Google Sheets';
+            badgeEl.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300';
+          }
+        }
+      }
+
+      async function pushIssuesToCloud() {
+        const gasUrl = getGasUrl();
+        if (!gasUrl) return;
+        updateCloudStatusUI('syncing');
+        try {
+          const sanitizedIssues = state.issues.map(item => ({
+            ...item,
+            photo: item.photo && item.photo.length > 45000 ? null : item.photo,
+            logs: (item.logs || []).map(l => ({
+              ...l,
+              photo: l.photo && l.photo.length > 45000 ? null : l.photo
+            }))
+          }));
+
+          await fetch(gasUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              issues: sanitizedIssues,
+              activities: state.activities || []
+            })
+          });
+
+          const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          updateCloudStatusUI('connected', `Tersinkron (${now})`);
+          const syncEl = document.getElementById('last-sync-info');
+          if (syncEl) syncEl.textContent = `Cloud Google Sheets tersinkron: ${now}`;
+        } catch (err) {
+          console.error('Cloud push error:', err);
+          updateCloudStatusUI('error', 'Gagal kirim ke Google Sheets');
+        }
+      }
+
+      async function pullIssuesFromCloud(silent = true) {
+        const gasUrl = getGasUrl();
+        if (!gasUrl || isSyncingCloud) return;
+        isSyncingCloud = true;
+        if (!silent) updateCloudStatusUI('syncing');
+
+        try {
+          const res = await fetch(gasUrl, { method: 'GET' });
+          const data = await res.json();
+          if (data && data.ok && Array.isArray(data.issues)) {
+            const hasCloudActivities = Array.isArray(data.activities);
+            if (data.issues.length > 0 || (hasCloudActivities && data.activities.length > 0)) {
+              state.issues = data.issues;
+              if (hasCloudActivities) {
+                state.activities = data.activities;
+                localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(state.activities));
+              }
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(state.issues));
+              renderIssues();
+            } else if (state.issues.length > 0 || state.activities.length > 0) {
+              await pushIssuesToCloud();
+            }
+            const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            updateCloudStatusUI('connected', `Live Sync (${now})`);
+            const syncEl = document.getElementById('last-sync-info');
+            if (syncEl) syncEl.textContent = `Terakhir sinkron Cloud: ${now}`;
+            if (!silent) showToast('Data berhasil disinkronkan dari Google Sheets!', 'success');
+          }
+        } catch (err) {
+          console.error('Cloud pull error:', err);
+          updateCloudStatusUI('error', 'Gagal menarik data Cloud');
+          if (!silent) showToast('Gagal terhubung ke URL Google Apps Script. Periksa izin akses "Anyone".', 'warning');
+        } finally {
+          isSyncingCloud = false;
+        }
+      }
+
+      function openModal(id) {
+        const modalEl = document.getElementById(id);
+        if (!modalEl) {
+          console.warn(`Modal dengan id "${id}" tidak ditemukan.`);
+          return;
+        }
+        modalEl.classList.remove('hidden');
+      }
+
+      function closeModal(id) {
+        const modalEl = document.getElementById(id);
+        if (!modalEl) return;
+        modalEl.classList.add('hidden');
+      }
+
+      function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+
+        const colors = {
+          success: 'bg-emerald-600 text-white border-emerald-500',
+          warning: 'bg-amber-500 text-slate-950 border-amber-400',
+          danger: 'bg-red-600 text-white border-red-500',
+          info: 'bg-slate-900 text-white border-slate-700'
+        };
+        const icons = {
+          success: 'fa-circle-check',
+          warning: 'fa-triangle-exclamation',
+          danger: 'fa-circle-xmark',
+          info: 'fa-circle-info'
+        };
+
+        const toast = document.createElement('div');
+        toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-lg text-xs sm:text-sm font-semibold transition-all duration-300 ${colors[type] || colors.info}`;
+        toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span class="flex-1">${escapeHTML(message)}</span>`;
+        container.appendChild(toast);
+
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          toast.style.transform = 'translateY(8px)';
+          setTimeout(() => toast.remove(), 300);
+        }, 3200);
+      }
+
+      function escapeHTML(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function formatDuration(ms) {
+        const totalMinutes = Math.max(0, Math.floor(ms / 60000));
+        const days = Math.floor(totalMinutes / (60 * 24));
+        const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+        const mins = totalMinutes % 60;
+        if (days > 0) return `${days}h ${hours}j ${mins}m`;
+        return `${hours}j ${mins}m`;
+      }
+
+      function formatTimeShort(isoStr) {
+        try {
+          const d = new Date(isoStr);
+          return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        } catch (e) {
+          return '--:--';
+        }
+      }
+
+      function formatDateTime(isoStr) {
+        try {
+          const d = new Date(isoStr);
+          return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short' }) + ' ' +
+                 d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        } catch (e) {
+          return '-';
+        }
+      }
+
+      function saveData() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state.issues));
+          localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(state.activities));
+          const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          const syncEl = document.getElementById('last-sync-info');
+          if (syncEl) syncEl.textContent = `Tersimpan lokal: ${now}`;
+        } catch (err) {
+          console.error('Gagal menyimpan ke localStorage:', err);
+          showToast('Penyimpanan penuh. Coba hapus foto atau data lama.', 'warning');
+        }
+        pushIssuesToCloud();
+      }
+
+      function loadData() {
+        try {
+          const rawIssues = localStorage.getItem(STORAGE_KEY);
+          if (rawIssues) {
+            const parsed = JSON.parse(rawIssues);
+            if (Array.isArray(parsed)) state.issues = parsed;
+          }
+          const rawActivities = localStorage.getItem(ACTIVITIES_KEY);
+          if (rawActivities) {
+            const parsedAct = JSON.parse(rawActivities);
+            if (Array.isArray(parsedAct)) state.activities = parsedAct;
+          }
+        } catch (err) {
+          console.error('Gagal memuat data:', err);
+          state.issues = [];
+          state.activities = [];
+        }
+      }
+
+      function updateKPIs() {
+        const now = Date.now();
+        let activeCount = 0;
+        let criticalCount = 0;
+        let waitingPartCount = 0;
+        let waitingTimeCount = 0;
+        let resolvedCount = 0;
+        let totalActiveDowntimeMs = 0;
+
+        state.issues.forEach(item => {
+          if (isIssueClosed(item.status)) {
+            resolvedCount++;
+          } else {
+            activeCount++;
+            if (item.priority === 'Critical') criticalCount++;
+            if (item.status === 'Waiting Part') waitingPartCount++;
+            if (item.status === 'Waiting Time') waitingTimeCount++;
+            const startTs = new Date(item.createdAt).getTime();
+            if (!isNaN(startTs)) {
+              totalActiveDowntimeMs += Math.max(0, now - startTs);
+            }
+          }
+        });
+
+        const setElText = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = val;
+        };
+
+        setElText('kpi-active', activeCount);
+        setElText('kpi-critical', criticalCount);
+        setElText('kpi-waiting', waitingPartCount);
+        setElText('kpi-waiting-time', waitingTimeCount);
+        setElText('kpi-resolved', resolvedCount);
+        setElText('kpi-downtime', formatDuration(totalActiveDowntimeMs));
+
+        // Update Tab Counts
+        document.querySelectorAll('#status-tabs .status-tab').forEach(btn => {
+          const status = btn.getAttribute('data-status');
+          const countSpan = btn.querySelector('.count');
+          if (!countSpan) return;
+          if (status === 'ALL') {
+            countSpan.textContent = state.issues.length;
+          } else if (status === CLOSED_STATUS) {
+            countSpan.textContent = state.issues.filter(i => isIssueClosed(i.status)).length;
+          } else {
+            countSpan.textContent = state.issues.filter(i => i.status === status).length;
+          }
+        });
+      }
+
+      function getPriorityRank(priority) {
+        const map = { Critical: 1, High: 2, Medium: 3, Low: 4 };
+        return map[priority] || 5;
+      }
+
+      function getPriorityBadge(priority) {
+        const styles = {
+          Critical: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-950/80 dark:text-red-300 dark:border-red-800',
+          High: 'bg-orange-100 text-orange-700 border-orange-300 dark:bg-orange-950/80 dark:text-orange-300 dark:border-orange-800',
+          Medium: 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/80 dark:text-amber-300 dark:border-amber-800',
+          Low: 'bg-slate-100 text-slate-700 border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700'
+        };
+        return `<span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${styles[priority] || styles.Medium}">${escapeHTML(priority)}</span>`;
+      }
+
+      function getStatusBadgeClass(status) {
+        if (isIssueClosed(status)) return 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-800';
+        if (status === 'Waiting Part') return 'bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/70 dark:text-amber-300 dark:border-amber-800';
+        if (status === 'Waiting Time') return 'bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-950/70 dark:text-orange-300 dark:border-orange-800';
+        if (status === 'In Progress') return 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/70 dark:text-blue-300 dark:border-blue-800';
+        if (status === 'Diagnosing') return 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-950/70 dark:text-purple-300 dark:border-purple-800';
+        return 'bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700';
+      }
+
+      function renderIssues() {
+        updateKPIs();
+        const container = document.getElementById('issues-container');
+        const emptyState = document.getElementById('empty-state');
+        if (!container || !emptyState) return;
+
+        const searchLower = state.filterSearch.trim().toLowerCase();
+        let filtered = state.issues.filter(item => {
+          if (state.filterStatus !== 'ALL') {
+            if (state.filterStatus === CLOSED_STATUS) {
+              if (!isIssueClosed(item.status)) return false;
+            } else if (item.status !== state.filterStatus) {
+              return false;
+            }
+          }
+          if (state.filterLine !== 'ALL' && item.line !== state.filterLine) return false;
+          if (state.filterPriority !== 'ALL' && item.priority !== state.filterPriority) return false;
+
+          if (searchLower) {
+            const hay = `${item.machine} ${item.line} ${item.alarmCode || ''} ${item.symptom} ${item.actionPlan} ${item.pic} ${item.sparepart || ''}`.toLowerCase();
+            if (!hay.includes(searchLower)) return false;
+          }
+          return true;
+        });
+
+        filtered.sort((a, b) => {
+          const aClosed = isIssueClosed(a.status);
+          const bClosed = isIssueClosed(b.status);
+          if (aClosed !== bClosed) return aClosed ? 1 : -1;
+
+          if (state.sortBy === 'priority') {
+            const diff = getPriorityRank(a.priority) - getPriorityRank(b.priority);
+            if (diff !== 0) return diff;
+            return new Date(b.createdAt) - new Date(a.createdAt);
+          }
+          if (state.sortBy === 'downtime') {
+            return new Date(a.createdAt) - new Date(b.createdAt);
+          }
+          return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML = '';
+          emptyState.classList.remove('hidden');
+        } else {
+          emptyState.classList.add('hidden');
+          const now = Date.now();
+          container.innerHTML = filtered.map(item => {
+            const closed = isIssueClosed(item.status);
+            const endTs = closed && item.resolvedAt ? new Date(item.resolvedAt).getTime() : now;
+            const durationStr = formatDuration(endTs - new Date(item.createdAt).getTime());
+            const isCritPulse = !closed && item.priority === 'Critical' ? 'critical-pulse border-red-400 dark:border-red-700' : 'border-slate-200 dark:border-slate-800';
+            const cardOpacity = closed ? 'opacity-80' : '';
+            const latestLog = item.logs && item.logs.length > 0 ? item.logs[item.logs.length - 1] : null;
+
+            return `
+              <article class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border ${isCritPulse} ${cardOpacity} shadow-sm flex flex-col justify-between gap-4 transition">
+                <div class="space-y-3">
+                  <!-- Top Row -->
+                  <div class="flex items-start justify-between gap-2">
+                    <div>
+                      <div class="flex flex-wrap items-center gap-2">
+                        <span class="px-2 py-0.5 rounded-md bg-slate-900 text-amber-400 dark:bg-slate-800 text-[11px] font-bold">${escapeHTML(item.line)}</span>
+                        <h3 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">${escapeHTML(item.machine)}</h3>
+                        ${item.alarmCode ? `<span class="px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-950/70 text-rose-600 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-mono text-xs font-bold">${escapeHTML(item.alarmCode)}</span>` : ''}
+                      </div>
+                      <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        <span>${escapeHTML(item.category)}</span> • <span>PIC: <strong class="text-slate-700 dark:text-slate-200">${escapeHTML(item.pic)}</strong> (${escapeHTML(item.shift)})</span> • <span>Lapor: ${formatDateTime(item.createdAt)}</span>
+                      </p>
+                    </div>
+                    <div class="flex flex-col items-end gap-1.5 shrink-0">
+                      ${getPriorityBadge(item.priority)}
+                      <span class="inline-flex items-center gap-1 font-mono text-xs font-bold ${closed ? 'text-emerald-600 dark:text-emerald-400' : 'text-purple-600 dark:text-purple-400'}">
+                        <i class="fa-solid fa-stopwatch"></i> ${durationStr}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Symptom & Action -->
+                  <div class="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 space-y-2 border border-slate-100 dark:border-slate-800">
+                    <div>
+                      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Problem / Gejala:</span>
+                      <p class="text-sm font-semibold text-slate-800 dark:text-slate-100">${escapeHTML(item.symptom)}</p>
+                    </div>
+                    <div>
+                      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Action Plan / Progress:</span>
+                      <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300">${escapeHTML(latestLog ? latestLog.note : item.actionPlan)}</p>
+                    </div>
+                    ${item.sparepart ? `
+                      <div class="pt-1 border-t border-slate-200/70 dark:border-slate-700/70 flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300 font-medium">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Sparepart: <strong>${escapeHTML(item.sparepart)}</strong></span>
+                      </div>
+                    ` : ''}
+                  </div>
+
+                  ${item.photo ? `
+                    <div>
+                      <button type="button" data-view-photo="${item.id}" class="group relative inline-flex items-center gap-2.5 p-1.5 pr-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 transition">
+                        <img src="${item.photo}" alt="Foto ${escapeHTML(item.machine)}" class="w-12 h-12 rounded-lg object-cover" />
+                        <div class="text-left">
+                          <span class="block text-xs font-bold text-slate-800 dark:text-slate-200 group-hover:text-amber-500">Lihat Foto Kondisi</span>
+                          <span class="block text-[11px] text-slate-500">Klik untuk perbesar</span>
+                        </div>
+                      </button>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <!-- Card Footer Actions -->
+                <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                  <select data-quick-status="${item.id}" aria-label="Ubah Status Mesin" class="px-3 py-1.5 rounded-xl text-xs font-bold border ${getStatusBadgeClass(item.status)} focus:outline-none cursor-pointer">
+                    <option value="Reported" ${item.status === 'Reported' ? 'selected' : ''}>Reported</option>
+                    <option value="Diagnosing" ${item.status === 'Diagnosing' ? 'selected' : ''}>Diagnosing</option>
+                    <option value="In Progress" ${item.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                    <option value="Waiting Part" ${item.status === 'Waiting Part' ? 'selected' : ''}>Waiting Part</option>
+                    <option value="Waiting Time" ${item.status === 'Waiting Time' ? 'selected' : ''}>Waiting Time</option>
+                    <option value="Terselesaikan / Close" ${isIssueClosed(item.status) ? 'selected' : ''}>Terselesaikan / Close</option>
+                  </select>
+
+                  <div class="flex items-center gap-1.5">
+                    <button type="button" data-open-log="${item.id}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/60 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs font-bold transition">
+                      <i class="fa-solid fa-clock-rotate-left"></i>
+                      <span>Update (${(item.logs || []).length})</span>
+                    </button>
+                    <button type="button" data-share-single="${item.id}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold transition">
+                      <i class="fa-brands fa-whatsapp"></i>
+                      <span>Share</span>
+                    </button>
+                    <button type="button" data-delete-issue="${item.id}" title="Hapus Problem" class="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 transition">
+                      <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            `;
+          }).join('');
+        }
+
+        renderActivities();
+      }
+
+      function renderActivities() {
+        const container = document.getElementById('activities-container');
+        const emptyEl = document.getElementById('activities-empty');
+        if (!container || !emptyEl) return;
+
+        if (!state.activities || state.activities.length === 0) {
+          container.innerHTML = '';
+          emptyEl.classList.remove('hidden');
+          return;
+        }
+
+        emptyEl.classList.add('hidden');
+        container.innerHTML = state.activities.map(act => {
+          const statusBadge = act.status === 'Selesai'
+            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/70 dark:text-emerald-300'
+            : act.status === 'In Progress'
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-950/70 dark:text-blue-300'
+              : 'bg-amber-100 text-amber-700 dark:bg-amber-950/70 dark:text-amber-300';
+
+          return `
+            <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 flex flex-col justify-between gap-2.5">
+              <div class="space-y-1.5">
+                <div class="flex items-start justify-between gap-2">
+                  <span class="px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 text-[11px] font-bold">
+                    ${escapeHTML(act.type)}
+                  </span>
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-bold ${statusBadge}">
+                    ${escapeHTML(act.status)}
+                  </span>
+                </div>
+                <h4 class="text-sm font-extrabold text-slate-900 dark:text-white">
+                  [${escapeHTML(act.line)}] ${escapeHTML(act.target)}
+                </h4>
+                <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${escapeHTML(act.description)}</p>
+              </div>
+              <div class="pt-2 border-t border-slate-200/70 dark:border-slate-700/70 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span>PIC: <strong class="text-slate-700 dark:text-slate-200">${escapeHTML(act.pic)}</strong> (${escapeHTML(act.shift)}) • ${formatTimeShort(act.createdAt)}</span>
+                <button type="button" data-delete-activity="${act.id}" title="Hapus Activity" class="text-slate-400 hover:text-red-500 p-1 transition">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function openLogModal(issueId) {
+        const issue = state.issues.find(i => i.id === issueId);
+        if (!issue) return;
+
+        document.getElementById('log-issue-id').value = issue.id;
+        document.getElementById('log-modal-title').textContent = `Update: ${issue.machine} (${issue.line})`;
+        document.getElementById('log-modal-subtitle').textContent = issue.symptom;
+        document.getElementById('log-new-status').value = isIssueClosed(issue.status) ? CLOSED_STATUS : issue.status;
+        document.getElementById('log-pic').value = '';
+        document.getElementById('log-part').value = issue.sparepart || '';
+        document.getElementById('log-note').value = '';
+
+        pendingLogPhotoDataUrl = null;
+        document.getElementById('log-photo-preview-wrap').classList.add('hidden');
+        document.getElementById('log-photo-preview').src = '';
+
+        const timeline = document.getElementById('log-timeline');
+        const logs = issue.logs || [];
+        if (logs.length === 0) {
+          timeline.innerHTML = `<p class="text-xs text-slate-500">Belum ada catatan riwayat.</p>`;
+        } else {
+          timeline.innerHTML = [...logs].reverse().map(log => `
+            <div class="relative pb-2">
+              <span class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-4 ring-white dark:ring-slate-900"></span>
+              <div class="flex flex-wrap items-center gap-2 text-xs">
+                <span class="font-mono font-bold text-slate-500 dark:text-slate-400">${formatDateTime(log.time)}</span>
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold border ${getStatusBadgeClass(log.status)}">${escapeHTML(log.status)}</span>
+                <span class="font-semibold text-slate-700 dark:text-slate-200">oleh ${escapeHTML(log.pic)}</span>
+              </div>
+              <p class="text-xs sm:text-sm text-slate-700 dark:text-slate-300 mt-1">${escapeHTML(log.note)}</p>
+              ${log.photo ? `<img src="${log.photo}" alt="Foto Log" class="mt-2 h-24 rounded-lg border border-slate-300 dark:border-slate-700 object-cover cursor-pointer" onclick="document.getElementById('lightbox-img').src='${log.photo}';document.getElementById('lightbox-caption').textContent='Lampiran Log (${escapeHTML(log.pic)})';document.getElementById('modal-lightbox').classList.remove('hidden');" />` : ''}
+            </div>
+          `).join('');
+        }
+
+        openModal('modal-update-log');
+      }
+
+      function generateSingleIssueReport(issue) {
+        const now = Date.now();
+        const closed = isIssueClosed(issue.status);
+        const endTs = closed && issue.resolvedAt ? new Date(issue.resolvedAt).getTime() : now;
+        const duration = formatDuration(endTs - new Date(issue.createdAt).getTime());
+
+        let lines = [
+          `*UPDATE PROBLEM MESIN MACH TIMUR - ${issue.line}*`,
+          `• *Mesin:* ${issue.machine}${issue.alarmCode ? ` (Alarm: ${issue.alarmCode})` : ''}`,
+          `• *Status:* ${issue.status} (${issue.priority})`,
+          `• *Downtime:* ${duration}`,
+          `• *Problem:* ${issue.symptom}`,
+          `• *Action:* ${issue.actionPlan}`
+        ];
+        if (issue.sparepart) lines.push(`• *Sparepart:* ${issue.sparepart}`);
+        lines.push(`• *PIC:* ${issue.pic} (${issue.shift})`);
+
+        if (issue.logs && issue.logs.length > 0) {
+          lines.push(`• *Detail Activity:*`);
+          issue.logs.forEach(l => {
+            lines.push(`  - [${formatTimeShort(l.time)}] (${l.status}) ${l.note} - _${l.pic}_`);
+          });
+        }
+
+        return lines.join('\n');
+      }
+
+      function generateShiftReportText() {
+        const includeResolved = document.getElementById('share-include-resolved')?.checked ?? true;
+        const includeActivity = document.getElementById('share-include-activity')?.checked ?? true;
+        const includeExtraActivities = document.getElementById('share-include-extra-activities')?.checked ?? true;
+
+        const nowDate = new Date();
+        const dateStr = nowDate.toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' });
+        const timeStr = nowDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
+        const list = state.issues.filter(i => includeResolved || !isIssueClosed(i.status));
+        const activeCount = state.issues.filter(i => !isIssueClosed(i.status)).length;
+        const closedCount = state.issues.filter(i => isIssueClosed(i.status)).length;
+
+        let text = `*MACHINE PROBLEM MONITOR & HANDOVER MACH TIMUR*\n`;
+        text += `Area: Machining SZ, KR, WA & AGV Supply\n`;
+        text += `Waktu: ${dateStr}, ${timeStr} WIB\n`;
+        text += `Ringkasan: ${activeCount} Aktif | ${closedCount} Close/Selesai\n`;
+        text += `====================================\n\n`;
+
+        if (list.length === 0) {
+          text += `_Tidak ada problem mesin yang dilaporkan._\n\n`;
+        } else {
+          list.forEach((item, idx) => {
+            const closed = isIssueClosed(item.status);
+            const endTs = closed && item.resolvedAt ? new Date(item.resolvedAt).getTime() : Date.now();
+            const dur = formatDuration(endTs - new Date(item.createdAt).getTime());
+            const statusIcon = closed ? '✅' : item.priority === 'Critical' ? '🚨' : '🔧';
+
+            text += `${idx + 1}. ${statusIcon} *[${item.line}] ${item.machine}*${item.alarmCode ? ` [${item.alarmCode}]` : ''}\n`;
+            text += `   • Status: *${item.status}* (${item.priority}) | Durasi: ${dur}\n`;
+            text += `   • Problem: ${item.symptom}\n`;
+            text += `   • Action: ${item.actionPlan}\n`;
+            if (item.sparepart) text += `   • Sparepart: ${item.sparepart}\n`;
+            text += `   • PIC: ${item.pic} (${item.shift})\n`;
+
+            if (includeActivity && item.logs && item.logs.length > 0) {
+              text += `   • Detail Activity:\n`;
+              item.logs.forEach(l => {
+                text += `     - [${formatTimeShort(l.time)}] ${l.status}: ${l.note} (${l.pic})\n`;
+              });
+            }
+            text += `\n`;
+          });
+        }
+
+        if (includeExtraActivities && state.activities && state.activities.length > 0) {
+          text += `*ACTIVITY TAMBAHAN (PM / REPAIR SPAREPART)*\n`;
+          text += `------------------------------------\n`;
+          state.activities.forEach((act, idx) => {
+            text += `${idx + 1}. *[${act.line}] ${act.target}* (${act.type})\n`;
+            text += `   • Pekerjaan: ${act.description}\n`;
+            text += `   • Status: ${act.status} | PIC: ${act.pic} (${act.shift})\n\n`;
+          });
+        }
+
+        text += `_Dikirim via Machine Problem Monitor & Handover Mach Timur_`;
+
+        const reportArea = document.getElementById('share-report-text');
+        if (reportArea) reportArea.value = text;
+
+        const waLink = document.getElementById('btn-wa-direct');
+        if (waLink) waLink.href = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      }
+
+      function exportToCSV() {
+        if (state.issues.length === 0 && state.activities.length === 0) {
+          showToast('Belum ada data untuk diekspor ke CSV.', 'warning');
+          return;
+        }
+        const headers = ['ID', 'Waktu Lapor', 'Lini', 'Mesin', 'Kategori', 'Prioritas', 'Kode Alarm', 'Problem', 'Action Plan', 'Sparepart', 'Status', 'PIC', 'Shift'];
+        const rows = state.issues.map(i => [
+          i.id, i.createdAt, i.line, i.machine, i.category, i.priority, i.alarmCode || '',
+          i.symptom, i.actionPlan, i.sparepart || '', i.status, i.pic, i.shift
+        ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','));
+
+        const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows].join('\n');
+        const link = document.createElement('a');
+        link.href = encodeURI(csvContent);
+        link.download = `mach_timur_monitor_${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        showToast('File CSV berhasil diunduh!', 'success');
+      }
+
+      function copyTextToClipboard(text, successMsg) {
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(() => {
+            showToast(successMsg, 'success');
+          }).catch(() => fallbackCopy(text, successMsg));
+        } else {
+          fallbackCopy(text, successMsg);
+        }
+      }
+
+      function fallbackCopy(text, successMsg) {
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        temp.style.position = 'fixed';
+        temp.style.left = '-9999px';
+        document.body.appendChild(temp);
+        temp.select();
+        try {
+          document.execCommand('copy');
+          showToast(successMsg, 'success');
+        } catch (e) {
+          showToast('Gagal menyalin teks otomatis.', 'danger');
+        }
+        temp.remove();
+      }
+
+      function bindEvents() {
+        // Theme toggle
+        const toggleTheme = () => {
+          const html = document.documentElement;
+          const isDark = html.classList.toggle('dark');
+          localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+        };
+        document.getElementById('theme-toggle')?.addEventListener('click', toggleTheme);
+        document.getElementById('theme-toggle-mobile')?.addEventListener('click', toggleTheme);
+
+        // Open Modals
+        document.getElementById('btn-open-new')?.addEventListener('click', () => openModal('modal-new-issue'));
+        document.getElementById('btn-mobile-new')?.addEventListener('click', () => openModal('modal-new-issue'));
+
+        document.getElementById('btn-open-activity')?.addEventListener('click', () => openModal('modal-new-activity'));
+        document.getElementById('btn-open-activity-section')?.addEventListener('click', () => openModal('modal-new-activity'));
+        document.getElementById('btn-mobile-activity')?.addEventListener('click', () => openModal('modal-new-activity'));
+
+        const openShareHandler = () => {
+          generateShiftReportText();
+          openModal('modal-share-report');
+        };
+        document.getElementById('btn-open-share')?.addEventListener('click', openShareHandler);
+        document.getElementById('btn-mobile-share')?.addEventListener('click', openShareHandler);
+
+        document.getElementById('btn-open-pwa-guide')?.addEventListener('click', () => openModal('modal-pwa-guide'));
+        document.getElementById('btn-trigger-install')?.addEventListener('click', () => openModal('modal-pwa-guide'));
+        document.getElementById('btn-dismiss-banner')?.addEventListener('click', () => {
+          document.getElementById('pwa-install-banner')?.classList.add('hidden');
+          localStorage.setItem(BANNER_DISMISSED_KEY, '1');
+        });
+
+        document.getElementById('btn-native-install-confirm')?.addEventListener('click', async () => {
+          if (!deferredInstallPrompt) return;
+          deferredInstallPrompt.prompt();
+          await deferredInstallPrompt.userChoice;
+          deferredInstallPrompt = null;
+          closeModal('modal-pwa-guide');
+        });
+
+        document.getElementById('btn-open-cloud-sync')?.addEventListener('click', () => {
+          const urlInput = document.getElementById('input-gas-url');
+          if (urlInput) urlInput.value = getGasUrl();
+          updateCloudStatusUI(getGasUrl() ? 'connected' : 'local');
+          openModal('modal-cloud-sync');
+        });
+
+        // Close Modals
+        document.querySelectorAll('[data-close-modal]').forEach(btn => {
+          btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close-modal')));
+        });
+
+        // Cloud Sync Buttons
+        document.getElementById('btn-save-gas-url')?.addEventListener('click', () => {
+          const val = document.getElementById('input-gas-url')?.value.trim();
+          if (!val || !val.startsWith('https://')) {
+            showToast('Masukkan URL Google Apps Script yang valid (https://...)', 'warning');
+            return;
+          }
+          localStorage.setItem(GAS_URL_KEY, val);
+          updateCloudStatusUI('connected');
+          showToast('URL Google Sheets disimpan! Menyinkronkan data...', 'success');
+          pullIssuesFromCloud(false);
+        });
+
+        document.getElementById('btn-sync-now')?.addEventListener('click', () => {
+          if (!getGasUrl()) {
+            showToast('Masukkan dan simpan URL Web App terlebih dahulu.', 'warning');
+            return;
+          }
+          pullIssuesFromCloud(false);
+        });
+
+        document.getElementById('btn-disconnect-gas')?.addEventListener('click', () => {
+          localStorage.removeItem(GAS_URL_KEY);
+          const urlInput = document.getElementById('input-gas-url');
+          if (urlInput) urlInput.value = '';
+          updateCloudStatusUI('local');
+          showToast('Koneksi Cloud diputuskan (Mode Lokal).', 'info');
+        });
+
+        document.getElementById('btn-copy-gas-code')?.addEventListener('click', () => {
+          const code = document.getElementById('gas-script-template')?.value || '';
+          copyTextToClipboard(code, 'Kode Google Apps Script berhasil disalin!');
+        });
+
+        // Photo handlers for New Issue
+        const handleNewPhotoSelect = async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          try {
+            pendingNewPhotoDataUrl = await compressImageFile(file);
+            document.getElementById('new-photo-preview').src = pendingNewPhotoDataUrl;
+            document.getElementById('new-photo-preview-wrap').classList.remove('hidden');
+            showToast('Foto berhasil dilampirkan!', 'success');
+          } catch (err) {
+            showToast(err.message || 'Gagal memproses foto', 'danger');
+          }
+          e.target.value = '';
+        };
+        document.getElementById('input-photo-camera')?.addEventListener('change', handleNewPhotoSelect);
+        document.getElementById('input-photo-gallery')?.addEventListener('change', handleNewPhotoSelect);
+        document.getElementById('btn-remove-new-photo')?.addEventListener('click', () => {
+          pendingNewPhotoDataUrl = null;
+          document.getElementById('new-photo-preview').src = '';
+          document.getElementById('new-photo-preview-wrap').classList.add('hidden');
+        });
+
+        // Photo handlers for Update Log
+        const handleLogPhotoSelect = async (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          try {
+            pendingLogPhotoDataUrl = await compressImageFile(file);
+            document.getElementById('log-photo-preview').src = pendingLogPhotoDataUrl;
+            document.getElementById('log-photo-preview-wrap').classList.remove('hidden');
+            showToast('Foto progres siap dilampirkan!', 'success');
+          } catch (err) {
+            showToast(err.message || 'Gagal memproses foto', 'danger');
+          }
+          e.target.value = '';
+        };
+        document.getElementById('log-photo-camera')?.addEventListener('change', handleLogPhotoSelect);
+        document.getElementById('log-photo-gallery')?.addEventListener('change', handleLogPhotoSelect);
+        document.getElementById('btn-remove-log-photo')?.addEventListener('click', () => {
+          pendingLogPhotoDataUrl = null;
+          document.getElementById('log-photo-preview').src = '';
+          document.getElementById('log-photo-preview-wrap').classList.add('hidden');
+        });
+
+        // Submit New Issue
+        document.getElementById('form-new-issue')?.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const nowIso = new Date().toISOString();
+          const status = document.getElementById('input-status').value;
+          const pic = document.getElementById('input-pic').value.trim();
+          const actionPlan = document.getElementById('input-action').value.trim();
+
+          const newIssue = {
+            id: 'ISS-' + Date.now(),
+            machine: document.getElementById('input-machine').value.trim(),
+            line: document.getElementById('input-line').value,
+            category: document.getElementById('input-category').value,
+            priority: document.getElementById('input-priority').value,
+            alarmCode: document.getElementById('input-alarm').value.trim(),
+            symptom: document.getElementById('input-symptom').value.trim(),
+            actionPlan: actionPlan,
+            sparepart: document.getElementById('input-part').value.trim(),
+            pic: pic,
+            shift: document.getElementById('input-shift').value,
+            status: status,
+            photo: pendingNewPhotoDataUrl,
+            createdAt: nowIso,
+            resolvedAt: isIssueClosed(status) ? nowIso : null,
+            logs: [
+              {
+                time: nowIso,
+                status: status,
+                note: actionPlan,
+                pic: pic,
+                photo: pendingNewPhotoDataUrl
+              }
+            ]
+          };
+
+          state.issues.unshift(newIssue);
+          saveData();
+          renderIssues();
+
+          e.target.reset();
+          pendingNewPhotoDataUrl = null;
+          document.getElementById('new-photo-preview-wrap').classList.add('hidden');
+          closeModal('modal-new-issue');
+          showToast(`Problem ${newIssue.machine} berhasil dicatat!`, 'success');
+        });
+
+        // Submit Update Log
+        document.getElementById('form-add-log')?.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const id = document.getElementById('log-issue-id').value;
+          const issue = state.issues.find(i => i.id === id);
+          if (!issue) return;
+
+          const newStatus = document.getElementById('log-new-status').value;
+          const pic = document.getElementById('log-pic').value.trim();
+          const part = document.getElementById('log-part').value.trim();
+          const note = document.getElementById('log-note').value.trim();
+          const nowIso = new Date().toISOString();
+
+          issue.status = newStatus;
+          issue.actionPlan = note;
+          if (part) issue.sparepart = part;
+          if (isIssueClosed(newStatus) && !issue.resolvedAt) {
+            issue.resolvedAt = nowIso;
+          } else if (!isIssueClosed(newStatus)) {
+            issue.resolvedAt = null;
+          }
+
+          if (!Array.isArray(issue.logs)) issue.logs = [];
+          issue.logs.push({
+            time: nowIso,
+            status: newStatus,
+            note: note,
+            pic: pic,
+            photo: pendingLogPhotoDataUrl
+          });
+
+          saveData();
+          renderIssues();
+          openLogModal(id);
+          showToast('Update progres berhasil ditambahkan!', 'success');
+        });
+
+        // Submit New Activity
+        document.getElementById('form-new-activity')?.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const newAct = {
+            id: 'ACT-' + Date.now(),
+            type: document.getElementById('act-type').value,
+            line: document.getElementById('act-line').value,
+            target: document.getElementById('act-target').value.trim(),
+            description: document.getElementById('act-desc').value.trim(),
+            pic: document.getElementById('act-pic').value.trim(),
+            shift: document.getElementById('act-shift').value,
+            status: document.getElementById('act-status').value,
+            createdAt: new Date().toISOString()
+          };
+
+          state.activities.unshift(newAct);
+          saveData();
+          renderActivities();
+          e.target.reset();
+          closeModal('modal-new-activity');
+          showToast('Activity tambahan berhasil disimpan!', 'success');
+        });
+
+        // Delegated Events on Issues Container
+        document.getElementById('issues-container')?.addEventListener('change', (e) => {
+          const statusSelect = e.target.closest('[data-quick-status]');
+          if (statusSelect) {
+            const id = statusSelect.getAttribute('data-quick-status');
+            const issue = state.issues.find(i => i.id === id);
+            if (!issue) return;
+            const newStatus = statusSelect.value;
+            const nowIso = new Date().toISOString();
+            issue.status = newStatus;
+            if (isIssueClosed(newStatus) && !issue.resolvedAt) {
+              issue.resolvedAt = nowIso;
+            } else if (!isIssueClosed(newStatus)) {
+              issue.resolvedAt = null;
+            }
+            if (!Array.isArray(issue.logs)) issue.logs = [];
+            issue.logs.push({
+              time: nowIso,
+              status: newStatus,
+              note: `Status diubah menjadi ${newStatus}`,
+              pic: issue.pic
+            });
+            saveData();
+            renderIssues();
+            showToast(`Status ${issue.machine} diubah ke ${newStatus}`, 'info');
+          }
+        });
+
+        document.getElementById('issues-container')?.addEventListener('click', (e) => {
+          const logBtn = e.target.closest('[data-open-log]');
+          if (logBtn) {
+            openLogModal(logBtn.getAttribute('data-open-log'));
+            return;
+          }
+
+          const shareBtn = e.target.closest('[data-share-single]');
+          if (shareBtn) {
+            const issue = state.issues.find(i => i.id === shareBtn.getAttribute('data-share-single'));
+            if (issue) {
+              const txt = generateSingleIssueReport(issue);
+              copyTextToClipboard(txt, `Laporan ${issue.machine} disalin! Membuka WhatsApp...`);
+              window.open(`https://wa.me/?text=${encodeURIComponent(txt)}`, '_blank', 'noopener,noreferrer');
+            }
+            return;
+          }
+
+          const photoBtn = e.target.closest('[data-view-photo]');
+          if (photoBtn) {
+            const issue = state.issues.find(i => i.id === photoBtn.getAttribute('data-view-photo'));
+            if (issue && issue.photo) {
+              document.getElementById('lightbox-img').src = issue.photo;
+              document.getElementById('lightbox-caption').textContent = `${issue.machine} (${issue.line}) - ${issue.symptom}`;
+              openModal('modal-lightbox');
+            }
+            return;
+          }
+
+          const delBtn = e.target.closest('[data-delete-issue]');
+          if (delBtn) {
+            const id = delBtn.getAttribute('data-delete-issue');
+            const idx = state.issues.findIndex(i => i.id === id);
+            if (idx !== -1) {
+              const removed = state.issues.splice(idx, 1)[0];
+              saveData();
+              renderIssues();
+              showToast(`Data ${removed.machine} dihapus.`, 'warning');
+            }
+          }
+        });
+
+        // Delegated Delete on Activities Container
+        document.getElementById('activities-container')?.addEventListener('click', (e) => {
+          const delActBtn = e.target.closest('[data-delete-activity]');
+          if (delActBtn) {
+            const id = delActBtn.getAttribute('data-delete-activity');
+            state.activities = state.activities.filter(a => a.id !== id);
+            saveData();
+            renderActivities();
+            showToast('Activity tambahan dihapus.', 'warning');
+          }
+        });
+
+        // Filter & Search Controls
+        document.querySelectorAll('#status-tabs .status-tab').forEach(tab => {
+          tab.addEventListener('click', () => {
+            document.querySelectorAll('#status-tabs .status-tab').forEach(t => {
+              t.classList.remove('active', 'bg-slate-900', 'text-white', 'dark:bg-amber-500', 'dark:text-slate-950', 'font-bold');
+              t.classList.add('bg-slate-100', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-300', 'font-semibold');
+            });
+            tab.classList.add('active', 'bg-slate-900', 'text-white', 'dark:bg-amber-500', 'dark:text-slate-950', 'font-bold');
+            tab.classList.remove('bg-slate-100', 'text-slate-700', 'dark:bg-slate-800', 'dark:text-slate-300', 'font-semibold');
+            state.filterStatus = tab.getAttribute('data-status');
+            renderIssues();
+          });
+        });
+
+        document.getElementById('filter-search')?.addEventListener('input', (e) => {
+          state.filterSearch = e.target.value;
+          renderIssues();
+        });
+
+        document.getElementById('filter-line')?.addEventListener('change', (e) => {
+          state.filterLine = e.target.value;
+          renderIssues();
+        });
+
+        document.getElementById('filter-priority')?.addEventListener('change', (e) => {
+          state.filterPriority = e.target.value;
+          renderIssues();
+        });
+
+        document.getElementById('filter-sort')?.addEventListener('change', (e) => {
+          state.sortBy = e.target.value;
+          renderIssues();
+        });
+
+        // Clear All Data (Two-step confirmation without confirm())
+        let clearConfirmTimeout = null;
+        document.getElementById('btn-reset-data')?.addEventListener('click', function () {
+          if (this.dataset.confirming !== '1') {
+            this.dataset.confirming = '1';
+            this.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i><span class="text-red-600 font-bold">Klik lagi untuk hapus semua!</span>';
+            clearConfirmTimeout = setTimeout(() => {
+              this.dataset.confirming = '0';
+              this.innerHTML = '<i class="fa-solid fa-trash-can"></i><span>Bersihkan Semua Data</span>';
+            }, 3500);
+            return;
+          }
+          clearTimeout(clearConfirmTimeout);
+          this.dataset.confirming = '0';
+          this.innerHTML = '<i class="fa-solid fa-trash-can"></i><span>Bersihkan Semua Data</span>';
+          state.issues = [];
+          state.activities = [];
+          saveData();
+          renderIssues();
+          showToast('Semua data berhasil dibersihkan.', 'info');
+        });
+
+        // Share Modal Checkboxes & Copy
+        document.getElementById('share-include-resolved')?.addEventListener('change', generateShiftReportText);
+        document.getElementById('share-include-activity')?.addEventListener('change', generateShiftReportText);
+        document.getElementById('share-include-extra-activities')?.addEventListener('change', generateShiftReportText);
+
+        document.getElementById('btn-copy-report')?.addEventListener('click', () => {
+          const text = document.getElementById('share-report-text')?.value || '';
+          copyTextToClipboard(text, 'Laporan Shift berhasil disalin ke clipboard!');
+        });
+
+        // Export CSV
+        document.getElementById('btn-export-csv')?.addEventListener('click', exportToCSV);
+      }
+
+      function startClockAndTimers() {
+        const updateClock = () => {
+          const clockEl = document.getElementById('live-clock');
+          if (clockEl) {
+            clockEl.textContent = new Date().toLocaleTimeString('id-ID', {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            });
+          }
+        };
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // Refresh downtime counters every 60 seconds
+        setInterval(() => {
+          renderIssues();
+        }, 60000);
+
+        // Auto-pull from Google Sheets every 15 seconds if configured
+        setInterval(() => {
+          if (getGasUrl()) pullIssuesFromCloud(true);
+        }, 15000);
+      }
+
+      function initTheme() {
+        const saved = localStorage.getItem(THEME_KEY);
+        if (saved === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        initTheme();
+        initPWA();
+        loadData();
+        bindEvents();
+        renderIssues();
+        startClockAndTimers();
+        if (getGasUrl()) {
+          updateCloudStatusUI('connected');
+          pullIssuesFromCloud(true);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
